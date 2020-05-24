@@ -9,17 +9,21 @@ namespace MetadataAPI.Definitions
 {
     public class DateTakenMetadataProperty : IMetadataProperty<DateTime?>
     {
+        public static DateTakenMetadataProperty Instance { get; } = new DateTakenMetadataProperty();
+
         public string Identifier => nameof(DateTakenMetadataProperty);
 
         public IReadOnlyCollection<string> SupportedFileTypes => new HashSet<string>(
-            FileTypes.JpegExtensions
-            .Concat(FileTypes.TiffExtensions)
-            .Concat(FileTypes.HeifExtensions)
-            .Concat(FileTypes.PngExtensions));
+            FileExtensions.Jpeg
+            .Concat(FileExtensions.Tiff)
+            .Concat(FileExtensions.Heif)
+            .Concat(FileExtensions.Png));
 
-        public DateTime? Read(IMetadataReader metadataReader)
+        private DateTakenMetadataProperty() { }
+
+        public DateTime? Read(IReadMetadata metadataReader)
         {
-            if (FileTypes.HeifExtensions.Contains(metadataReader.FileType))
+            if (FileExtensions.Heif.Contains(metadataReader.FileType))
             {
                 if ((string)metadataReader.GetMetadata("/ifd/{ushort=306}") is string ifd306)
                 {
@@ -35,9 +39,9 @@ namespace MetadataAPI.Definitions
             }
         }
 
-        public void Write(IMetadataWriter metadataWriter, DateTime? value)
+        public void Write(IWriteMetadata metadataWriter, DateTime? value)
         {
-            if (FileTypes.HeifExtensions.Contains(metadataWriter.FileType))
+            if (FileExtensions.Heif.Contains(metadataWriter.FileType))
             {
                 if (value is DateTime dateTaken)
                 {
@@ -53,6 +57,16 @@ namespace MetadataAPI.Definitions
             {
                 metadataWriter.SetMetadata("System.Photo.DateTaken", value);
             }
+        }
+
+        object IReadonlyMetadataProperty.Read(IReadMetadata metadataReader)
+        {
+            return Read(metadataReader);
+        }
+
+        void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
+        {
+            Write(metadataWriter, (DateTime?)value);
         }
     }
 }

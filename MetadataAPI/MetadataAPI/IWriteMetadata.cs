@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace MetadataAPI
 {
-    public interface IMetadataWriter : IMetadataReader
+    public interface IWriteMetadata : IReadMetadata
     {
         void SetMetadata(string name, object value);
     }

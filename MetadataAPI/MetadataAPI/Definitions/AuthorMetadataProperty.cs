@@ -8,28 +8,32 @@ namespace MetadataAPI.Definitions
 {
     public class AuthorMetadataProperty : IMetadataProperty<string[]>
     {
+        public static AuthorMetadataProperty Instance { get; } = new AuthorMetadataProperty();
+
         public string Identifier => nameof(AuthorMetadataProperty);
 
         public IReadOnlyCollection<string> SupportedFileTypes => new HashSet<string>() { ".jpe", ".jpeg", ".jpg", ".tiff", ".tif", ".heic" };
 
-        public string[] Read(IMetadataReader metadataReader)
+        private AuthorMetadataProperty() { }
+
+        public string[] Read(IReadMetadata metadataReader)
         {
             if (metadataReader.FileType == ".heic")
             {
-                 return (string[])(
-                    //metadataReader.GetMetadata("ifd/{ushort=315}")
-                    //?? 
-                    metadataReader.GetMetadata("/xmp/dc:creator")
-                    //?? metadataReader.GetMetadata("ifd/{ushort=40093}")
-                    ?? metadataReader.GetMetadata("/xmp/tiff:artist"));
+                return (string[])(
+                   //metadataReader.GetMetadata("ifd/{ushort=315}")
+                   //?? 
+                   metadataReader.GetMetadata("/xmp/dc:creator")
+                   //?? metadataReader.GetMetadata("ifd/{ushort=40093}")
+                   ?? metadataReader.GetMetadata("/xmp/tiff:artist"));
             }
-            else 
+            else
             {
                 return (string[])metadataReader.GetMetadata("System.Author") ?? new string[0];
             }
         }
 
-        public void Write(IMetadataWriter metadataWriter, string[] value)
+        public void Write(IWriteMetadata metadataWriter, string[] value)
         {
             if (metadataWriter.FileType == ".heic")
             {
@@ -42,6 +46,16 @@ namespace MetadataAPI.Definitions
             {
                 metadataWriter.SetMetadata("System.Author", value);
             }
+        }
+
+        object IReadonlyMetadataProperty.Read(IReadMetadata metadataReader)
+        {
+            return Read(metadataReader);
+        }
+
+        void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
+        {
+            Write(metadataWriter, (string[])value);
         }
     }
 }

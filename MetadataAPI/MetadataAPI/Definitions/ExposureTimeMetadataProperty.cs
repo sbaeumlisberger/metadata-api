@@ -8,11 +8,15 @@ namespace MetadataAPI.Definitions
 {
     public class ExposureTimeMetadataProperty : IMetadataProperty<Fraction?>
     {
+        public static ExposureTimeMetadataProperty Instance { get; } = new ExposureTimeMetadataProperty();
+
         public string Identifier { get; } = nameof(ExposureTimeMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileTypes.JpegExtensions.Concat(FileTypes.TiffExtensions));
+        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
 
-        public Fraction? Read(IMetadataReader metadataReader)
+        private ExposureTimeMetadataProperty() { }
+
+        public Fraction? Read(IReadMetadata metadataReader)
         {
             if (metadataReader.GetMetadata("System.Photo.ExposureTimeNumerator") is UInt32 numerator
                 && metadataReader.GetMetadata("System.Photo.ExposureTimeDenominator") is UInt32 denominator)
@@ -22,10 +26,20 @@ namespace MetadataAPI.Definitions
             return null;
         }
 
-        public void Write(IMetadataWriter metadataWriter, Fraction? value)
+        public void Write(IWriteMetadata metadataWriter, Fraction? value)
         {
             metadataWriter.SetMetadata("System.Photo.ExposureTimeNumerator", (UInt32?)value?.Numerator);
             metadataWriter.SetMetadata("System.Photo.ExposureTimeDenominator", (UInt32?)value?.Denominator);
+        }
+
+        object IReadonlyMetadataProperty.Read(IReadMetadata metadataReader)
+        {
+            return Read(metadataReader);
+        }
+
+        void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
+        {
+            Write(metadataWriter, (Fraction?)value);
         }
     }
 }

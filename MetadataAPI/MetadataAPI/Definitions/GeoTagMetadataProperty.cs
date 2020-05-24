@@ -8,11 +8,15 @@ namespace MetadataAPI.Definitions
 {
     public class GeoTagMetadataProperty : IMetadataProperty<GeoTag>
     {
+        public static GeoTagMetadataProperty Instance { get; } = new GeoTagMetadataProperty();
+
         public string Identifier { get; } = nameof(GeoTagMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileTypes.JpegExtensions.Concat(FileTypes.TiffExtensions));
+        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
 
-        public GeoTag Read(IMetadataReader metadataReader)
+        private GeoTagMetadataProperty() { }
+
+        public GeoTag Read(IReadMetadata metadataReader)
         {
             double? latitude = GetDecimal(metadataReader, "System.GPS.LatitudeNumerator", "System.GPS.LatitudeDenominator", "System.GPS.LatitudeRef", "S");
             double? longitude = GetDecimal(metadataReader, "System.GPS.LongitudeNumerator", "System.GPS.LongitudeDenominator", "System.GPS.LongitudeRef", "W");
@@ -36,12 +40,22 @@ namespace MetadataAPI.Definitions
             return null;
         }
 
-        public void Write(IMetadataWriter metadataWriter, GeoTag value)
+        public void Write(IWriteMetadata metadataWriter, GeoTag value)
         {
             metadataWriter.SetMetadata("System.Copyright", value);
         }
 
-        private double? GetAltitude(IMetadataReader metadataReader)
+        object IReadonlyMetadataProperty.Read(IReadMetadata metadataReader)
+        {
+            return Read(metadataReader);
+        }
+
+        void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
+        {
+            Write(metadataWriter, (GeoTag)value);
+        }
+
+        private double? GetAltitude(IReadMetadata metadataReader)
         {
             if (metadataReader.GetMetadata("System.GPS.AltitudeNumerator") is UInt32 numerator
                 && metadataReader.GetMetadata("System.GPS.AltitudeDenominator") is UInt32 denominator)
@@ -51,7 +65,7 @@ namespace MetadataAPI.Definitions
             return null;
         }
 
-        private double? GetDecimal(IMetadataReader metadataReader, string numeratorKey, string denominatorKey, string refKey, string refNegative)
+        private double? GetDecimal(IReadMetadata metadataReader, string numeratorKey, string denominatorKey, string refKey, string refNegative)
         {
             if (metadataReader.GetMetadata(numeratorKey) is UInt32[] numerator
                 && metadataReader.GetMetadata(denominatorKey) is UInt32[] denominator)

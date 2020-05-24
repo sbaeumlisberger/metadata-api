@@ -15,21 +15,13 @@ namespace MetadataAPITest
         [Fact]
         public async Task Test1()
         {
-            var peopleProperty = new PeopleMetadataProperty();
-
             string filePath = AppDomain.CurrentDomain.BaseDirectory + "/TestBitmap.jpg";
 
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                await BitmapPropertiesHelper.ReadAsync(stream, (queryReader) =>
-                {
-                    WICMetadataReader wicReader = new WICMetadataReader();
-                    wicReader.SetWICMetadataQueryReader(queryReader);
-
-                    var people = peopleProperty.Read(wicReader);
-
-                    Console.WriteLine(people);
-                });
+                var metadataReader = new MetadataReader(stream, Path.GetExtension(filePath));
+                var people = metadataReader.GetMetadata(PeopleMetadataProperty.Instance);
+                Console.WriteLine(people);
             }
 
             //var authorProperty = new AuthorMetadataProperty();

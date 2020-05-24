@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace MetadataAPI
 {
-    public interface IMetadataProperty<T> : IReadonlyMetadataProperty<T>
+    public interface IMetadataProperty : IReadonlyMetadataProperty
     {
-        void Write(IMetadataWriter metadataWriter, T value);
+        void Write(IWriteMetadata metadataWriter, object value);
+    }
+
+    public interface IMetadataProperty<T> : IMetadataProperty, IReadonlyMetadataProperty<T>
+    {
+        void Write(IWriteMetadata metadataWriter, T value);
     }
 }

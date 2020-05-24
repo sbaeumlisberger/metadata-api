@@ -1,54 +1,158 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using MetadataAPI.Provider;
 using WIC;
 
-namespace MetadataAPI
+namespace MetadataAPI.WIC
 {
     public class WICMetadataWriter : IMetadataWriter
     {
-        public string FileType { get; set; }
 
-        private IWICMetadataQueryWriter wicMetadataQueryWriter;
+        /// <summary>
+        /// Padding amount in bit, added on re-encode 
+        /// </summary>
+        private const uint PaddingAmount = 4096;
 
-        public void SetWICMetadataQueryWriter(IWICMetadataQueryWriter wicMetadataQueryWriter)
+        private Stream stream;
+
+        private IWICFastMetadataEncoder inPlaceEncoder;
+
+        private WICWriteMetadata writeMetadata;
+
+        private readonly WICImagingFactory wic = new WICImagingFactory();
+
+        public IWriteMetadata SetStream(Stream stream, string fileType)
         {
-            this.wicMetadataQueryWriter = wicMetadataQueryWriter;
+            this.stream = stream;
+
+            var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), WICDecodeOptions.WICDecodeMetadataCacheOnDemand);
+
+            var frame = decoder.GetFrame(0);
+
+            inPlaceEncoder = wic.CreateFastMetadataEncoderFromFrameDecode(frame);
+
+            var metadataQueryWriter = inPlaceEncoder.GetMetadataQueryWriter();
+
+            writeMetadata = new WICWriteMetadata(fileType, metadataQueryWriter);
+
+            return writeMetadata;
         }
 
-        public object GetMetadata(string key)
+        public async Task CommitAsync() 
         {
-            if (wicMetadataQueryWriter.TryGetMetadataByName(key, out var value))
+            if (stream is null)
             {
-                return value;
+                throw new InvalidOperationException();
             }
-            return null;
-        }
 
-        public IMetadataReader GetMetadataBlock(string key)
-        {
-            var metadataReader = new WICMetadataReader();
-            var metadataQueryReader = (IWICMetadataQueryReader)GetMetadata(key);
-            metadataReader.SetWICMetadataQueryReader(metadataQueryReader);
-            return metadataReader;
-        }
-
-        public IEnumerable<string> GetKeys()
-        {
-            return wicMetadataQueryWriter.GetNames();
-        }
-
-        public void SetMetadata(string name, object value)
-        {
-            if (value is null)
+            if (!TryEncodeInPlace()) 
             {
-                wicMetadataQueryWriter.RemoveMetadataByName(name);
-            }
-            else
-            {
-               wicMetadataQueryWriter.SetMetadataByName(name, value);                
+                await ReEncodeAsync();
             }
         }
+
+        private bool TryEncodeInPlace() 
+        {
+            try
+            {
+                inPlaceEncoder.Commit();
+                return true;
+            }
+            catch (Exception ex) when (ex.HResult == WinCodecError.PROPERTY_NOT_SUPPORTED)
+            {
+                throw new NotSupportedException("The file format does not support the requested metadata.", ex);
+            }
+            catch (Exception ex) when (ex.HResult == WinCodecError.UNSUPPORTED_OPERATION)
+            {
+                return false;
+            }
+            catch (Exception ex) when (ex.HResult == WinCodecError.TOOMUCHMETADATA
+                || ex.HResult == WinCodecError.INSUFFICIENTBUFFER
+                || ex.HResult == WinCodecError.IMAGE_METADATA_HEADER_UNKNOWN)
+            {
+                return false;
+            }
+        }
+
+        private async Task ReEncodeAsync() 
+        {
+            try
+            {
+                var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), WICDecodeOptions.WICDecodeMetadataCacheOnDemand/*lossless decoding/encoding*/);
+
+                var frame = decoder.GetFrame(0);
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    var encoder = wic.CreateEncoder(decoder.GetContainerFormat());
+
+                    encoder.Initialize(memoryStream.AsCOMStream(), WICBitmapEncoderCacheOption.WICBitmapEncoderNoCache);
+
+                    var encoderFrame = encoder.CreateNewFrame();
+                    encoderFrame.Initialize(null);
+                    encoderFrame.SetSize(frame.GetSize()); // lossless decoding/encoding
+                    encoderFrame.SetResolution(frame.GetResolution()); // lossless decoding/encoding
+                    encoderFrame.SetPixelFormat(frame.GetPixelFormat()); // lossless decoding/encoding
+
+                    var metadataBlockWriter = encoderFrame.AsMetadataBlockWriter();
+
+                    if (metadataBlockWriter is null)
+                    {
+                        throw new NotSupportedException("The file format does not support any metadata.");
+                    }
+
+                    metadataBlockWriter.InitializeFromBlockReader(frame.AsMetadataBlockReader());
+
+                    var metadataWriter = encoderFrame.GetMetadataQueryWriter();
+                    
+                    foreach (var (name, value) in writeMetadata.Requests) 
+                    {
+                        metadataWriter.SetMetadataByName(name, value);
+                    }
+
+                    // Add padding to allow future in-place write operations
+                    AddPadding(metadataWriter, encoder.GetContainerFormat());
+
+                    encoderFrame.WriteSource(frame);
+
+                    encoderFrame.Commit();
+                    encoder.Commit();
+
+                    await memoryStream.FlushAsync().ConfigureAwait(false);
+                    memoryStream.Position = 0;
+                    stream.Position = 0;
+                    stream.SetLength(0);
+                    await memoryStream.CopyToAsync(stream).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex) when (ex.HResult == WinCodecError.PROPERTY_NOT_SUPPORTED)
+            {
+                throw new NotSupportedException("The file format does not support the requested metadata.", ex);
+            }
+            catch (Exception ex) when (ex.HResult == WinCodecError.UNSUPPORTED_OPERATION)
+            {
+                throw new NotSupportedException("The file format does not support any metadata.", ex);
+            }
+        }
+
+        private static void AddPadding(IWICMetadataQueryWriter metadataWriter, Guid containerFormat)
+        {
+            if (containerFormat == ContainerFormat.Jpeg)
+            {
+                metadataWriter.SetMetadataByName("/app1/ifd/PaddingSchema:Padding", PaddingAmount);
+                metadataWriter.SetMetadataByName("/app1/ifd/exif/PaddingSchema:Padding", PaddingAmount);
+                metadataWriter.SetMetadataByName("/xmp/PaddingSchema:Padding", PaddingAmount);
+            }
+            else if (containerFormat == ContainerFormat.Tiff)
+            {
+                metadataWriter.SetMetadataByName("/ifd/PaddingSchema:padding", PaddingAmount);
+                metadataWriter.SetMetadataByName("/ifd/exif/PaddingSchema:padding", PaddingAmount);
+            }
+        }
+
     }
+
 }

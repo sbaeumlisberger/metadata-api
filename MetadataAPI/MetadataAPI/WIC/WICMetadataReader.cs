@@ -1,43 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
+using MetadataAPI.Provider;
 using WIC;
 
-namespace MetadataAPI
+namespace MetadataAPI.WIC
 {
     public class WICMetadataReader : IMetadataReader
     {
-        public string FileType { get; set; }
 
-        private IWICMetadataQueryReader wicMetadataQueryReader;
+        private readonly WICImagingFactory wic = new WICImagingFactory();
 
-        public void SetWICMetadataQueryReader(IWICMetadataQueryReader wicMetadataQueryReader)
+        public IReadMetadata SetStream(Stream stream, string fileType)
         {
-            this.wicMetadataQueryReader = wicMetadataQueryReader;
+            var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), WICDecodeOptions.WICDecodeMetadataCacheOnDemand);
+
+            var frame = decoder.GetFrame(0);
+
+            var metadataQueryReader = frame.GetMetadataQueryReader();
+
+            return new WICReadMetadata(fileType, metadataQueryReader);
         }
 
-        public object GetMetadata(string key)
-        {
-            if (wicMetadataQueryReader.TryGetMetadataByName(key, out var value))
-            {
-                return value;
-            }
-            return null;
-        }
-
-        public IMetadataReader GetMetadataBlock(string key)
-        {
-            var metadataReader = new WICMetadataReader();
-            var metadataQueryReader = (IWICMetadataQueryReader)GetMetadata(key);
-            metadataReader.SetWICMetadataQueryReader(metadataQueryReader);
-            return metadataReader;
-        }
-
-        public IEnumerable<string> GetKeys()
-        {
-            return wicMetadataQueryReader.GetNames();
-        }
     }
 }

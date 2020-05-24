@@ -9,9 +9,11 @@ namespace MetadataAPI.Definitions
 {
     public class PeopleMetadataProperty : IMetadataProperty<IList<PeopleTag>>
     {
+        public static PeopleMetadataProperty Instance { get; } = new PeopleMetadataProperty();
+
         public string Identifier { get; } = nameof(PeopleMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileTypes.JpegExtensions.Concat(FileTypes.TiffExtensions));
+        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
 
         private const string RegionsBlockKey = "/xmp/<xmpstruct>MP:RegionInfo/<xmpbag>MPRI:Regions";
         private const string NameKey = "/MPReg:PersonDisplayName";
@@ -19,7 +21,9 @@ namespace MetadataAPI.Definitions
         private const string EmailDigestKey = "/MPReg:PersonEmailDigest";
         private const string LiveCIDKey = "/MPReg:PersonLiveCID";
 
-        public IList<PeopleTag> Read(IMetadataReader metadataReader)
+        private PeopleMetadataProperty() { }
+
+        public IList<PeopleTag> Read(IReadMetadata metadataReader)
         {
             var peopleTasgs = new List<PeopleTag>();
 
@@ -53,7 +57,7 @@ namespace MetadataAPI.Definitions
             return peopleTasgs;
         }
 
-        public void Write(IMetadataWriter metadataWriter, IList<PeopleTag> people)
+        public void Write(IWriteMetadata metadataWriter, IList<PeopleTag> people)
         {
             int existingCount = metadataWriter.GetMetadataBlock(RegionsBlockKey).GetKeys().Count();
 
@@ -77,6 +81,16 @@ namespace MetadataAPI.Definitions
                 metadataWriter.SetMetadata(CreateKey(n, EmailDigestKey), emailDigest);
                 metadataWriter.SetMetadata(CreateKey(n, LiveCIDKey), liveCID);
             }
+        }
+
+        object IReadonlyMetadataProperty.Read(IReadMetadata metadataReader)
+        {
+            return Read(metadataReader);
+        }
+
+        void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
+        {
+            Write(metadataWriter, (IList<PeopleTag>)value);
         }
 
         private int ParseIndexFromKey(string key)

@@ -5,13 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MetadataAPI
-{   
-    public interface IReadonlyMetadataProperty<T>
+{
+    public interface IReadonlyMetadataProperty
     {
         string Identifier { get; }
 
         IReadOnlyCollection<string> SupportedFileTypes { get; }
 
-        T Read(IMetadataReader metadataReader);
+        object Read(IReadMetadata metadataReader);
     }
+
+    public interface IReadonlyMetadataProperty<T> : IReadonlyMetadataProperty
+    {
+        new T Read(IReadMetadata metadataReader);
+    }
+
 }

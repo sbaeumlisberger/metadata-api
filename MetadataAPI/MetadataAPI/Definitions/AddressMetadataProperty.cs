@@ -8,16 +8,20 @@ namespace MetadataAPI.Definitions
 {
     public class AddressMetadataProperty : IMetadataProperty<AddressTag>
     {
+        public static AddressMetadataProperty Instance { get; } = new AddressMetadataProperty();
+
         public string Identifier { get; } = nameof(AddressMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileTypes.JpegExtensions.Concat(FileTypes.TiffExtensions));
+        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
 
         private const string COUNTRY_NAME_KEY = "/xmp/<xmpbag>http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:LocationCreated/<xmpstruct>{ulong=0}/http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:CountryName";
         private const string PROVINCE_STATE_KEY = "/xmp/<xmpbag>http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:LocationCreated/<xmpstruct>{ulong=0}/http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:ProvinceState";
         private const string CITY_KEY = "/xmp/<xmpbag>http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:LocationCreated/<xmpstruct>{ulong=0}/http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:City";
         private const string SUBLOCATION_KEY = "/xmp/<xmpbag>http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:LocationCreated/<xmpstruct>{ulong=0}/http\\:\\/\\/iptc.org\\/std\\/Iptc4xmpExt\\/2008-02-29\\/:Sublocation";
 
-        public AddressTag Read(IMetadataReader metadataReader)
+        private AddressMetadataProperty() { }
+
+        public AddressTag Read(IReadMetadata metadataReader)
         {
             AddressTag address = new AddressTag();
 
@@ -44,14 +48,24 @@ namespace MetadataAPI.Definitions
             //}
 
             return address;
-        }
+        } 
 
-        public void Write(IMetadataWriter metadataWriter, AddressTag value)
+        public void Write(IWriteMetadata metadataWriter, AddressTag value)
         {
             metadataWriter.SetMetadata(COUNTRY_NAME_KEY, value.Country);
             metadataWriter.SetMetadata(PROVINCE_STATE_KEY, value.ProvinceState);
             metadataWriter.SetMetadata(CITY_KEY, value.City);
             metadataWriter.SetMetadata(SUBLOCATION_KEY, value.Sublocation);
+        }
+
+        object IReadonlyMetadataProperty.Read(IReadMetadata metadataReader)
+        {
+            return Read(metadataReader);
+        }
+
+        void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
+        {
+            Write(metadataWriter, (AddressTag)value);
         }
 
     }
