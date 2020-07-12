@@ -17,17 +17,18 @@ namespace MetadataAPI.Definitions
 
         public int Read(IReadMetadata metadataReader)
         {
-            if (metadataReader.GetMetadata("System.SimpleRating") is UInt32 simpleRating)
+            if (metadataReader.GetMetadata("System.SimpleRating") is object simpleRating)
             {
-                return (int)simpleRating;
+                return Convert.ToInt32(simpleRating);
             }
-            else if (metadataReader.GetMetadata("System.Rating") is UInt32 rating)
+            else if (metadataReader.GetMetadata("System.Rating") is object rating)
             {
-                if (rating >= 99) return 5;
-                if (rating >= 75) return 4;
-                if (rating >= 50) return 3;
-                if (rating >= 25) return 2;
-                if (rating >= 1) return 1;
+                int ratingValue = Convert.ToInt32(rating);
+                if (ratingValue >= 99) return 5;
+                if (ratingValue >= 75) return 4;
+                if (ratingValue >= 50) return 3;
+                if (ratingValue >= 25) return 2;
+                if (ratingValue >= 1) return 1;
             }
             return 0;
         }

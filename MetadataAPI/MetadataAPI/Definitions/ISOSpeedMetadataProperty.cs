@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MetadataAPI.Definitions
 {
-    public class ISOSpeedMetadataProperty : IMetadataProperty<double?>
+    public class ISOSpeedMetadataProperty : IMetadataProperty<ushort?>
     {
         public static ISOSpeedMetadataProperty Instance { get; } = new ISOSpeedMetadataProperty();
 
@@ -15,12 +15,12 @@ namespace MetadataAPI.Definitions
 
         private ISOSpeedMetadataProperty() { }
 
-        public double? Read(IReadMetadata metadataReader)
+        public ushort? Read(IReadMetadata metadataReader)
         {
-            return (double?)metadataReader.GetMetadata("System.Photo.ISOSpeed");
+            return (ushort?)metadataReader.GetMetadata("System.Photo.ISOSpeed");
         }
 
-        public void Write(IWriteMetadata metadataWriter, double? value)
+        public void Write(IWriteMetadata metadataWriter, ushort? value)
         {
             metadataWriter.SetMetadata("System.Photo.ISOSpeed", value);
         }
@@ -32,7 +32,7 @@ namespace MetadataAPI.Definitions
 
         void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
         {
-            Write(metadataWriter, (double?)value);
+            Write(metadataWriter, (ushort?)value);
         }
     }
 }

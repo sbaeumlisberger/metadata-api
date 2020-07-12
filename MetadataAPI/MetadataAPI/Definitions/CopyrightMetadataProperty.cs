@@ -9,7 +9,7 @@ namespace MetadataAPI.Definitions
     {
         public static CopyrightMetadataProperty Instance { get; } = new CopyrightMetadataProperty();
 
-        public string Identifier { get; } = nameof(CameraManufacturerMetadataProperty);
+        public string Identifier { get; } = nameof(CopyrightMetadataProperty);
 
         public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
 

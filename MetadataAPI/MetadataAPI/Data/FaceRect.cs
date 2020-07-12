@@ -14,6 +14,8 @@ namespace MetadataAPI.Data
         public double Width { get; set; }
         public double Height { get; set; }
 
+        public bool IsEmpty => this == Empty;
+
         public FaceRect(double x, double y, double width, double height)
         {
             X = x;

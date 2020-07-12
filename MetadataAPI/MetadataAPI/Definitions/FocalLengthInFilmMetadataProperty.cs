@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MetadataAPI.Definitions
 {
-    public class FocalLengthInFilmMetadataProperty : IMetadataProperty<double?>
+    public class FocalLengthInFilmMetadataProperty : IMetadataProperty<ushort?>
     {
         public static FocalLengthInFilmMetadataProperty Instance { get; } = new FocalLengthInFilmMetadataProperty();
 
@@ -15,12 +15,12 @@ namespace MetadataAPI.Definitions
 
         private FocalLengthInFilmMetadataProperty() { }
 
-        public double? Read(IReadMetadata metadataReader)
+        public ushort? Read(IReadMetadata metadataReader)
         {
-            return (double?)metadataReader.GetMetadata("System.Photo.FocalLengthInFilm");
+            return (ushort?)metadataReader.GetMetadata("System.Photo.FocalLengthInFilm");
         }
 
-        public void Write(IWriteMetadata metadataWriter, double? value)
+        public void Write(IWriteMetadata metadataWriter, ushort? value)
         {
             metadataWriter.SetMetadata("System.Photo.FocalLengthInFilm", value);
         }
@@ -32,7 +32,7 @@ namespace MetadataAPI.Definitions
 
         void IMetadataProperty.Write(IWriteMetadata metadataWriter, object value)
         {
-            Write(metadataWriter, (double?)value);
+            Write(metadataWriter, (ushort?)value);
         }
     }
 }

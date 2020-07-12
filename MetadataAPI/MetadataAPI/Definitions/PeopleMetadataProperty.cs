@@ -29,6 +29,11 @@ namespace MetadataAPI.Definitions
 
             var regions = metadataReader.GetMetadataBlock(RegionsBlockKey);
 
+            if (regions is null) 
+            {
+                return peopleTasgs;
+            }
+
             foreach (string key in regions.GetKeys().OrderBy(key => ParseIndexFromKey(key)))
             {
                 var region = regions.GetMetadataBlock(key);

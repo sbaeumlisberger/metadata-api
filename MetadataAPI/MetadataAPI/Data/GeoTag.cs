@@ -11,7 +11,7 @@ namespace MetadataAPI.Data
 
         public double Longitude { get; set; }
 
-        public double Altitude { get; set; }
+        public double? Altitude { get; set; }
 
         public AltitudeReference AltitudeReference { get; set; }
 

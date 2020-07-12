@@ -10,7 +10,7 @@ namespace MetadataAPI.Definitions
     {
         public static OrientationMetadataProperty Instance { get; } = new OrientationMetadataProperty();
 
-        public string Identifier { get; } = nameof(FocalLengthMetadataProperty);
+        public string Identifier { get; } = nameof(OrientationMetadataProperty);
 
         public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
 
