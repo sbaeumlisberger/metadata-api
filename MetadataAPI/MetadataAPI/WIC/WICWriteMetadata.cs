@@ -24,17 +24,17 @@ namespace MetadataAPI.WIC
 
         public object GetMetadata(string key)
         {
-            if (wicMetadataQueryWriter.TryGetMetadataByName(key, out var value))
-            {
-                return value;
-            }
-            return null;
+            return wicMetadataQueryWriter.TryGetMetadataByName(key, out object value) ? value : null;
         }
 
         public IReadMetadata GetMetadataBlock(string key)
         {
             var metadataQueryReader = (IWICMetadataQueryReader)GetMetadata(key);
-            return new WICReadMetadata(FileType, metadataQueryReader);
+            if (metadataQueryReader != null)
+            {
+                return new WICReadMetadata(FileType, metadataQueryReader);
+            }
+            return null;
         }
 
         public IEnumerable<string> GetKeys()

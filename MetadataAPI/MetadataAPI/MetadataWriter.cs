@@ -52,6 +52,16 @@ namespace MetadataAPI
             property.Write(writeMetadata, value);
         }
 
+        public void SetMetadata(IMetadataProperty property, object value)
+        {
+            if (writeMetadata is null)
+            {
+                throw new InvalidOperationException("No stream has been set.");
+            }
+
+            property.Write(writeMetadata, value);
+        }
+
         public Task CommitAsync() 
         {
             return metadataWriter.CommitAsync();

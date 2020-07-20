@@ -16,22 +16,22 @@ namespace MetadataAPI.WIC
         public WICReadMetadata(string fileType, IWICMetadataQueryReader wicMetadataQueryReader)
         {
             this.FileType = fileType.ToLower();
-            this.wicMetadataQueryReader = wicMetadataQueryReader;         
+            this.wicMetadataQueryReader = wicMetadataQueryReader;
         }
 
         public object GetMetadata(string key)
         {
-            if (wicMetadataQueryReader.TryGetMetadataByName(key, out var value))
-            {
-                return value;
-            }
-            return null;
+            return wicMetadataQueryReader.TryGetMetadataByName(key, out object value) ? value : null;
         }
 
         public IReadMetadata GetMetadataBlock(string key)
         {
             var metadataQueryReader = (IWICMetadataQueryReader)GetMetadata(key);
-            return new WICReadMetadata(FileType, metadataQueryReader);
+            if (metadataQueryReader != null)
+            {
+                return new WICReadMetadata(FileType, metadataQueryReader);
+            }
+            return null;
         }
 
         public IEnumerable<string> GetKeys()

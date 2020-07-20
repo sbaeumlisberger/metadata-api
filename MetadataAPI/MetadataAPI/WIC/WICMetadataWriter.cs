@@ -50,6 +50,7 @@ namespace MetadataAPI.WIC
 
             if (!TryEncodeInPlace()) 
             {
+                stream.Seek(0, SeekOrigin.Begin);
                 await ReEncodeAsync();
             }
         }
@@ -81,7 +82,7 @@ namespace MetadataAPI.WIC
         {
             try
             {
-                var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), WICDecodeOptions.WICDecodeMetadataCacheOnDemand/*lossless decoding/encoding*/);
+                var decoder = wic.CreateDecoderFromStream(stream, WICDecodeOptions.WICDecodeMetadataCacheOnDemand/*lossless decoding/encoding*/);
 
                 var frame = decoder.GetFrame(0);
 

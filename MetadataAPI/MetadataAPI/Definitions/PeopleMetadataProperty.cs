@@ -64,7 +64,7 @@ namespace MetadataAPI.Definitions
 
         public void Write(IWriteMetadata metadataWriter, IList<PeopleTag> people)
         {
-            int existingCount = metadataWriter.GetMetadataBlock(RegionsBlockKey).GetKeys().Count();
+            int existingCount = metadataWriter.GetMetadataBlock(RegionsBlockKey)?.GetKeys().Count() ?? 0;
 
             for (int n = 0; n < Math.Max(people.Count, existingCount); n++)
             {
