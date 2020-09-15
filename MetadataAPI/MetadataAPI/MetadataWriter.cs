@@ -1,71 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
-using MetadataAPI.Provider;
-using MetadataAPI.WIC;
+using WIC;
 
 namespace MetadataAPI
 {
-    public class MetadataWriter
+    public class MetadataWriter : IMetadataWriter
     {
+        public string FileType { get; }
 
-        private readonly IMetadataWriter metadataWriter;
+        private readonly IWICMetadataQueryWriter wicMetadataQueryWriter;
 
-        private IWriteMetadata writeMetadata;
-
-        public MetadataWriter()
-        {
-            metadataWriter = new WICMetadataProvider().CreateMetadataWriter();
+        public MetadataWriter(IWICMetadataQueryWriter wicMetadataQueryWriter, string fileType)
+        {           
+            this.wicMetadataQueryWriter = wicMetadataQueryWriter;
+            FileType = fileType.ToLower();
         }
 
-        public MetadataWriter(Stream stream, string fileType)
+        public object GetMetadata(string key)
         {
-            metadataWriter = new WICMetadataProvider().CreateMetadataWriter();
-            SetStream(stream, fileType);
+            return wicMetadataQueryWriter.TryGetMetadataByName(key, out object value) ? value : null;
         }
 
-        public MetadataWriter(IMetadataProvider provider)        
+        public IMetadataReader GetMetadataBlock(string key)
         {
-            metadataWriter = provider.CreateMetadataWriter();
-        }
-
-        public MetadataWriter(IMetadataProvider provider, Stream stream, string fileType)
-        {
-            metadataWriter = provider.CreateMetadataWriter();
-            SetStream(stream, fileType);
-        }
-
-        public void SetStream(Stream stream, string fileType)
-        {
-            writeMetadata = metadataWriter.SetStream(stream, fileType);
-        }
-
-        public void SetMetadata<T>(IMetadataProperty<T> property, T value)
-        {
-            if (writeMetadata is null)
+            var metadataQueryReader = (IWICMetadataQueryReader)GetMetadata(key);
+            if (metadataQueryReader != null)
             {
-                throw new InvalidOperationException("No stream has been set.");
+                return new MetadataReader(metadataQueryReader, FileType);
             }
-
-            property.Write(writeMetadata, value);
+            return null;
         }
 
-        public void SetMetadata(IMetadataProperty property, object value)
+        public IEnumerable<string> GetKeys()
         {
-            if (writeMetadata is null)
+            return wicMetadataQueryWriter.GetNames();
+        }
+
+        public void SetMetadata(string name, object value)
+        {
+            if (value is null)
             {
-                throw new InvalidOperationException("No stream has been set.");
+                wicMetadataQueryWriter.RemoveMetadataByName(name);
             }
-
-            property.Write(writeMetadata, value);
+            else
+            {
+                wicMetadataQueryWriter.SetMetadataByName(name, value);
+            }
         }
-
-        public Task CommitAsync() 
-        {
-            return metadataWriter.CommitAsync();
-        }
-
     }
 }

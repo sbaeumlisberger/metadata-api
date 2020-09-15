@@ -12,12 +12,12 @@ namespace MetadataAPI
 
         IReadOnlyCollection<string> SupportedFileTypes { get; }
 
-        object Read(IReadMetadata metadataReader);
+        object Read(IMetadataReader metadataReader);
     }
 
     public interface IReadonlyMetadataProperty<T> : IReadonlyMetadataProperty
     {
-        new T Read(IReadMetadata metadataReader);
+        new T Read(IMetadataReader metadataReader);
     }
 
 }

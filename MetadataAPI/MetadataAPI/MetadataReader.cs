@@ -1,55 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-using MetadataAPI.Provider;
-using MetadataAPI.WIC;
+using WIC;
 
 namespace MetadataAPI
 {
-    public class MetadataReader
+    public class MetadataReader : IMetadataReader
     {
+        public string FileType { get; }
 
-        private readonly IMetadataReader metadataReader;
+        private readonly IWICMetadataQueryReader wicMetadataQueryReader;
 
-        private IReadMetadata readMetadata;
-
-        public MetadataReader()
+        public MetadataReader(IWICMetadataQueryReader wicMetadataQueryReader, string fileType)
         {
-            metadataReader = new WICMetadataProvider().CreateMetadataReader();
+            this.wicMetadataQueryReader = wicMetadataQueryReader;
+            FileType = fileType.ToLower();
         }
 
-        public MetadataReader(Stream stream, string fileType)
+        public object GetMetadata(string key)
         {
-            metadataReader = new WICMetadataProvider().CreateMetadataReader();
-            SetStream(stream, fileType);
+            return wicMetadataQueryReader.TryGetMetadataByName(key, out object value) ? value : null;
         }
 
-        public MetadataReader(IMetadataProvider provider)
+        public IMetadataReader GetMetadataBlock(string key)
         {
-            metadataReader = provider.CreateMetadataReader();
-        }
-
-        public MetadataReader(IMetadataProvider provider, Stream stream, string fileType)
-        {
-            metadataReader = provider.CreateMetadataReader();
-            SetStream(stream, fileType);
-        }
-
-        public void SetStream(Stream stream, string fileType)
-        {
-            readMetadata = metadataReader.SetStream(stream, fileType);
-        }
-
-        public T GetMetadata<T>(IReadonlyMetadataProperty<T> property)
-        {
-            if (readMetadata is null)
+            if (GetMetadata(key) is IWICMetadataQueryReader metadataQueryReader)
             {
-                throw new InvalidOperationException("No stream has been set.");
+                return new MetadataReader(metadataQueryReader, FileType);
             }
-
-            return property.Read(readMetadata);
+            return null;
         }
 
+        public IEnumerable<string> GetKeys()
+        {
+            return wicMetadataQueryReader.GetNames();
+        }
     }
 }

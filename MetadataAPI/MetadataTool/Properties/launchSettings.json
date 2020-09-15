@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MetadataTool": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\Sebastian\\Workspace\\git\\metadata-api\\MetadataAPI\\MetadataAPITest\\TestData\\TestImage_no_metadata.jpg"
+    }
+  }
+}

@@ -8,11 +8,11 @@ namespace MetadataAPI
 {
     public interface IMetadataProperty : IReadonlyMetadataProperty
     {
-        void Write(IWriteMetadata metadataWriter, object value);
+        void Write(IMetadataWriter metadataWriter, object value);
     }
 
     public interface IMetadataProperty<T> : IMetadataProperty, IReadonlyMetadataProperty<T>
     {
-        void Write(IWriteMetadata metadataWriter, T value);
+        void Write(IMetadataWriter metadataWriter, T value);
     }
 }

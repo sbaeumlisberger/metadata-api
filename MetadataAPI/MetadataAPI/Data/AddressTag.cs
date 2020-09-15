@@ -13,12 +13,6 @@ namespace MetadataAPI.Data
         public string ProvinceState { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
 
-        public bool IsEmpty =>
-            string.IsNullOrWhiteSpace(Sublocation) &&
-            string.IsNullOrWhiteSpace(City) &&
-            string.IsNullOrWhiteSpace(ProvinceState) &&
-            string.IsNullOrWhiteSpace(Country);
-
         public AddressTag() { }
 
         public AddressTag(string sublocation, string city, string provinceState, string country)
