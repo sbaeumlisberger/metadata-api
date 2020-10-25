@@ -29,7 +29,7 @@ namespace MetadataAPI.Properties
 
             var regions = metadataReader.GetMetadataBlock(RegionsBlockKey);
 
-            if (regions is null) 
+            if (regions is null)
             {
                 return peopleTasgs;
             }
@@ -70,23 +70,23 @@ namespace MetadataAPI.Properties
 
             for (int n = 0; n < Math.Max(people.Count, existingCount); n++)
             {
-                string name = null;
-                string rect = null;
-                string emailDigest = null;
-                string liveCID = null;
+                string entryKey = RegionsBlockKey + "/<xmpstruct>{ulong=" + n + "}";
 
                 if (n < people.Count)
                 {
-                    name = people[n].Name;
-                    rect = RectToString(people[n].Rectangle);
-                    emailDigest = people[n].EmailDigest;
-                    liveCID = people[n].LiveCID;
+                    string name = people[n].Name;
+                    string rect = RectToString(people[n].Rectangle);
+                    string emailDigest = people[n].EmailDigest;
+                    string liveCID = people[n].LiveCID;
+                    metadataWriter.SetMetadata(entryKey + NameKey, name);
+                    metadataWriter.SetMetadata(entryKey + RectangleKey, rect);
+                    metadataWriter.SetMetadata(entryKey + EmailDigestKey, emailDigest);
+                    metadataWriter.SetMetadata(entryKey + LiveCIDKey, liveCID);
                 }
-
-                metadataWriter.SetMetadata(CreateKey(n, NameKey), name);
-                metadataWriter.SetMetadata(CreateKey(n, RectangleKey), rect);
-                metadataWriter.SetMetadata(CreateKey(n, EmailDigestKey), emailDigest);
-                metadataWriter.SetMetadata(CreateKey(n, LiveCIDKey), liveCID);
+                else
+                {
+                    metadataWriter.SetMetadata(entryKey, null);
+                }
             }
         }
 
@@ -105,11 +105,6 @@ namespace MetadataAPI.Properties
             // key = "/{ulong=index}"
             var indexString = key.Substring(8, key.Length - 9);
             return int.Parse(indexString);
-        }
-
-        private string CreateKey(int n, string propertyKey)
-        {
-            return RegionsBlockKey + "/<xmpstruct>{ulong=" + n + "}" + propertyKey;
         }
 
         private FaceRect ParseRect(string s)

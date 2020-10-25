@@ -37,8 +37,26 @@ namespace MetadataAPITest.IntegrationTest.Properties
         }
 
         [Theory]
+        [InlineData(TestConstants.JpegWithoutMetadata)]
+        public async Task Test_Write_LessEntriesThanBefore(string fileName)
+        {
+            string filePath = TestDataProvider.GetFile(fileName);
+            var people = new[] { new PeopleTag("Test 01"), new PeopleTag("Test 02"), new PeopleTag("Test 03") };
+            await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
+         
+            people = new[] { new PeopleTag("Test 02"), new PeopleTag("Test 03") };
+            await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
+            Assert.Equal(people, await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
+
+            people = new[] { new PeopleTag("Test 03") };
+            await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
+            Assert.Equal(people, await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
+        }
+
+
+        [Theory]
         [InlineData(TestConstants.JpegWithMetadata)]
-        public async Task Test_Write_LessThanBefore(string fileName)
+        public async Task Test_Write_EmptyCollection(string fileName)
         {
             string filePath = TestDataProvider.GetFile(fileName);
 
