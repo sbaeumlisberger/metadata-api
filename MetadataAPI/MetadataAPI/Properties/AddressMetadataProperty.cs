@@ -6,7 +6,7 @@ using MetadataAPI.Data;
 
 namespace MetadataAPI.Properties
 {
-    public class AddressMetadataProperty : IMetadataProperty<AddressTag>
+    public class AddressMetadataProperty : IMetadataProperty<AddressTag?>
     {
         public static AddressMetadataProperty Instance { get; } = new AddressMetadataProperty();
 
@@ -21,12 +21,12 @@ namespace MetadataAPI.Properties
 
         private AddressMetadataProperty() { }
 
-        public AddressTag Read(IMetadataReader metadataReader)
+        public AddressTag? Read(IMetadataReader metadataReader)
         {
-            string sublocation = (string)metadataReader.GetMetadata(SUBLOCATION_KEY);
-            string city = (string)metadataReader.GetMetadata(CITY_KEY);
-            string provinceState = (string)metadataReader.GetMetadata(PROVINCE_STATE_KEY);
-            string country = (string)metadataReader.GetMetadata(COUNTRY_NAME_KEY);
+            string? sublocation = (string?)metadataReader.GetMetadata(SUBLOCATION_KEY);
+            string? city = (string?)metadataReader.GetMetadata(CITY_KEY);
+            string? provinceState = (string?)metadataReader.GetMetadata(PROVINCE_STATE_KEY);
+            string? country = (string?)metadataReader.GetMetadata(COUNTRY_NAME_KEY);
 
             if (sublocation is null && city is null && provinceState is null && country is null)
             {
@@ -42,7 +42,7 @@ namespace MetadataAPI.Properties
             };
         }
 
-        public void Write(IMetadataWriter metadataWriter, AddressTag value)
+        public void Write(IMetadataWriter metadataWriter, AddressTag? value)
         {
             metadataWriter.SetMetadata(COUNTRY_NAME_KEY, value?.Country);
             metadataWriter.SetMetadata(PROVINCE_STATE_KEY, value?.ProvinceState);
@@ -50,14 +50,14 @@ namespace MetadataAPI.Properties
             metadataWriter.SetMetadata(SUBLOCATION_KEY, value?.Sublocation);
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (AddressTag)value);
+            Write(metadataWriter, (AddressTag?)value);
         }
 
     }

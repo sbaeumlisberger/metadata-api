@@ -19,12 +19,12 @@ namespace MetadataAPI
             FileType = fileType.ToLower();
         }
 
-        public object GetMetadata(string key)
+        public object? GetMetadata(string key)
         {
             return wicMetadataQueryReader.TryGetMetadataByName(key, out object value) ? value : null;
         }
 
-        public IMetadataReader GetMetadataBlock(string key)
+        public IMetadataReader? GetMetadataBlock(string key)
         {
             if (GetMetadata(key) is IWICMetadataQueryReader metadataQueryReader)
             {

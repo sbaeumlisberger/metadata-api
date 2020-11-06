@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MetadataAPI.Properties
 {
-    public class CameraModelMetadataProperty : IMetadataProperty<string>
+    public class CameraModelMetadataProperty : IMetadataProperty<string?>
     {
         public static CameraModelMetadataProperty Instance { get; } = new CameraModelMetadataProperty();
 
@@ -15,24 +15,24 @@ namespace MetadataAPI.Properties
 
         private CameraModelMetadataProperty() { }
 
-        public string Read(IMetadataReader metadataReader)
+        public string? Read(IMetadataReader metadataReader)
         {
-            return (string)metadataReader.GetMetadata("System.Photo.CameraModel") ?? string.Empty;
+            return (string?)metadataReader.GetMetadata("System.Photo.CameraModel") ?? string.Empty;
         }
 
-        public void Write(IMetadataWriter metadataWriter, string value)
+        public void Write(IMetadataWriter metadataWriter, string? value)
         {
             metadataWriter.SetMetadata("System.Photo.CameraModel", value);
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (string)value);
+            Write(metadataWriter, (string?)value);
         }
     }
 }

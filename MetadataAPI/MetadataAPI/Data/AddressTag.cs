@@ -1,5 +1,4 @@
-﻿using DotNetToolkit.Foundation;
-using System;
+﻿using System;
 using System.Linq;
 
 namespace MetadataAPI.Data
@@ -35,7 +34,7 @@ namespace MetadataAPI.Data
             return Equals(obj as AddressTag);
         }
 
-        public bool Equals(AddressTag other)
+        public bool Equals(AddressTag? other)
         {
             if (ReferenceEquals(other, null)) return false;
             if (ReferenceEquals(other, this)) return true;
@@ -47,7 +46,7 @@ namespace MetadataAPI.Data
 
         public override int GetHashCode()
         {
-            return HashCode.Of(Sublocation, City, ProvinceState, Country);
+            return HashCode.Combine(Sublocation, City, ProvinceState, Country);
         }
 
         public static bool operator ==(AddressTag obj1, AddressTag obj2)

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MetadataAPI.Properties
 {
-    public class KeywordsMetadataProperty : IMetadataProperty<string[]>
+    public class KeywordsMetadataProperty : IMetadataProperty<string[]?>
     {
         public static KeywordsMetadataProperty Instance { get; } = new KeywordsMetadataProperty();
 
@@ -15,24 +15,24 @@ namespace MetadataAPI.Properties
 
         private KeywordsMetadataProperty() { }
 
-        public string[] Read(IMetadataReader metadataReader)
+        public string[]? Read(IMetadataReader metadataReader)
         {
-            return (string[])metadataReader.GetMetadata("System.Keywords") ?? new string[0];
+            return (string[]?)metadataReader.GetMetadata("System.Keywords");
         }
 
-        public void Write(IMetadataWriter metadataWriter, string[] value)
+        public void Write(IMetadataWriter metadataWriter, string[]? value)
         {
             metadataWriter.SetMetadata("System.Keywords", value?.ToArray());
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (string[])value);
+            Write(metadataWriter, (string[]?)value);
         }
     }
 }

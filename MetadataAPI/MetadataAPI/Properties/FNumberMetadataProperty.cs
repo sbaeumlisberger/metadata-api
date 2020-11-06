@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DotNetToolkit.Foundation;
+using MetadataAPI.Data;
 
 namespace MetadataAPI.Properties
 {
@@ -32,12 +32,12 @@ namespace MetadataAPI.Properties
             metadataWriter.SetMetadata("System.Photo.FNumberDenominator", (UInt32?)value?.Denominator);
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
             Write(metadataWriter, (Fraction?)value);
         }

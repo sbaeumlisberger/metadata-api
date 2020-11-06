@@ -9,11 +9,11 @@ namespace MetadataAPI
     {
         string FileType { get; }
 
-        object GetMetadata(string key);
+        object? GetMetadata(string key);
 
         IEnumerable<string> GetKeys();
 
-        IMetadataReader GetMetadataBlock(string key);
+        IMetadataReader? GetMetadataBlock(string key);
     }
 
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using DotNetToolkit.Foundation;
 
 namespace MetadataAPI.Data
 {
@@ -41,7 +40,7 @@ namespace MetadataAPI.Data
 
         public override int GetHashCode()
         {
-            return HashCode.Of(X, Y, Width, Height);
+            return HashCode.Combine(X, Y, Width, Height);
         }
 
         public static bool operator ==(FaceRect obj1, FaceRect obj2)

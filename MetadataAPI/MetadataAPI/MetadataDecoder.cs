@@ -27,7 +27,7 @@ namespace MetadataAPI
             metadataReader = new MetadataReader(metadataQueryReader, fileType);
         }
 
-        public object GetMetadata(string key)
+        public object? GetMetadata(string key)
         {
             return metadataReader.GetMetadata(key);
         }
@@ -37,7 +37,7 @@ namespace MetadataAPI
             return metadataReader.GetKeys();
         }
 
-        public IMetadataReader GetMetadataBlock(string key)
+        public IMetadataReader? GetMetadataBlock(string key)
         {
             return metadataReader.GetMetadataBlock(key);
         }

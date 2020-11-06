@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetadataAPI.Properties
 {
-    public class AuthorMetadataProperty : IMetadataProperty<string[]>
+    public class AuthorMetadataProperty : IMetadataProperty<string[]?>
     {
         public static AuthorMetadataProperty Instance { get; } = new AuthorMetadataProperty();
 
@@ -16,12 +16,12 @@ namespace MetadataAPI.Properties
 
         private AuthorMetadataProperty() { }
 
-        public string[] Read(IMetadataReader metadataReader)
+        public string[]? Read(IMetadataReader metadataReader)
         {
-            return (string[])metadataReader.GetMetadata("System.Author") ?? new string[0];
+            return (string[]?)metadataReader.GetMetadata("System.Author");
         }
 
-        public void Write(IMetadataWriter metadataWriter, string[] value)
+        public void Write(IMetadataWriter metadataWriter, string[]? value)
         {
             if (metadataWriter.FileType == ".heic")
             {
@@ -36,14 +36,14 @@ namespace MetadataAPI.Properties
             }
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (string[])value);
+            Write(metadataWriter, (string[]?)value);
         }
     }
 }

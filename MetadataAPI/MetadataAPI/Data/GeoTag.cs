@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using DotNetToolkit.Foundation;
 
 namespace MetadataAPI.Data
 {
@@ -15,12 +14,12 @@ namespace MetadataAPI.Data
 
         public AltitudeReference AltitudeReference { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Equals(obj as GeoTag);
         }
 
-        public bool Equals(GeoTag other)
+        public bool Equals(GeoTag? other)
         {
             if (ReferenceEquals(other, null)) return false;
             if (ReferenceEquals(other, this)) return true;
@@ -32,7 +31,7 @@ namespace MetadataAPI.Data
 
         public override int GetHashCode()
         {
-            return HashCode.Of(Latitude, Longitude, Altitude, AltitudeReference);
+            return HashCode.Combine(Latitude, Longitude, Altitude, AltitudeReference);
         }
 
         public static bool operator ==(GeoTag obj1, GeoTag obj2)

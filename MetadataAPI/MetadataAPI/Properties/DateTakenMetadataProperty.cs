@@ -25,7 +25,7 @@ namespace MetadataAPI.Properties
         {
             if (FileExtensions.Heif.Contains(metadataReader.FileType))
             {
-                if ((string)metadataReader.GetMetadata("/ifd/{ushort=306}") is string ifd306)
+                if (metadataReader.GetMetadata("/ifd/{ushort=306}") is string ifd306)
                 {
                     return DateTime.ParseExact(ifd306, "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                 }
@@ -39,15 +39,30 @@ namespace MetadataAPI.Properties
 
         public void Write(IMetadataWriter metadataWriter, DateTime? value)
         {
-            metadataWriter.SetMetadata("System.Photo.DateTaken", value);            
+            //if (FileExtensions.Heif.Contains(metadataWriter.FileType))
+            //{
+            //    if (value is DateTime dateTaken)
+            //    {
+            //        string formatted = dateTaken.ToString("yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture);
+            //        metadataWriter.SetMetadata("/ifd/{ushort=306}", formatted);
+            //    }
+            //    else
+            //    {
+            //        metadataWriter.SetMetadata("/ifd/{ushort=306}", null);
+            //    }
+            //}
+            //else
+            //{
+            metadataWriter.SetMetadata("System.Photo.DateTaken", value);
+            //}
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
             Write(metadataWriter, (DateTime?)value);
         }

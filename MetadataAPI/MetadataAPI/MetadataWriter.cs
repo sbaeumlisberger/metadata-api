@@ -18,14 +18,14 @@ namespace MetadataAPI
             FileType = fileType.ToLower();
         }
 
-        public object GetMetadata(string key)
+        public object? GetMetadata(string key)
         {
             return wicMetadataQueryWriter.TryGetMetadataByName(key, out object value) ? value : null;
         }
 
-        public IMetadataReader GetMetadataBlock(string key)
+        public IMetadataReader? GetMetadataBlock(string key)
         {
-            var metadataQueryReader = (IWICMetadataQueryReader)GetMetadata(key);
+            var metadataQueryReader = (IWICMetadataQueryReader?)GetMetadata(key);
             if (metadataQueryReader != null)
             {
                 return new MetadataReader(metadataQueryReader, FileType);
@@ -38,7 +38,7 @@ namespace MetadataAPI
             return wicMetadataQueryWriter.GetNames();
         }
 
-        public void SetMetadata(string name, object value)
+        public void SetMetadata(string name, object? value)
         {
             if (value is null)
             {

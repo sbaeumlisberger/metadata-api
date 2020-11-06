@@ -6,7 +6,7 @@ namespace MetadataAPI
 {
     public static class MetadataReaderExtension
     {
-        public static object GetProperty(this IMetadataReader metadataReader, IReadonlyMetadataProperty property)
+        public static object? GetProperty(this IMetadataReader metadataReader, IReadonlyMetadataProperty property)
         {
             return property.Read(metadataReader);
         }

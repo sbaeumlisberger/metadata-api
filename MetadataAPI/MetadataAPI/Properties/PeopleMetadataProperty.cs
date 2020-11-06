@@ -7,7 +7,7 @@ using MetadataAPI.Data;
 
 namespace MetadataAPI.Properties
 {
-    public class PeopleMetadataProperty : IMetadataProperty<IList<PeopleTag>>
+    public class PeopleMetadataProperty : IMetadataProperty<IList<PeopleTag>?>
     {
         public static PeopleMetadataProperty Instance { get; } = new PeopleMetadataProperty();
 
@@ -23,7 +23,7 @@ namespace MetadataAPI.Properties
 
         private PeopleMetadataProperty() { }
 
-        public IList<PeopleTag> Read(IMetadataReader metadataReader)
+        public IList<PeopleTag>? Read(IMetadataReader metadataReader)
         {
             var peopleTasgs = new List<PeopleTag>();
 
@@ -31,16 +31,16 @@ namespace MetadataAPI.Properties
 
             if (regions is null)
             {
-                return peopleTasgs;
+                return null;
             }
 
             foreach (string key in regions.GetKeys().OrderBy(key => ParseIndexFromKey(key)))
             {
-                var region = regions.GetMetadataBlock(key);
+                var region = regions.GetMetadataBlock(key)!;
 
                 if (region.GetMetadata(NameKey) is string name && !string.IsNullOrWhiteSpace(name))
                 {
-                    var peopleTag = new PeopleTag((string)name);
+                    var peopleTag = new PeopleTag(name);
 
                     if (region.GetMetadata(RectangleKey) is string rectangle)
                     {
@@ -62,7 +62,7 @@ namespace MetadataAPI.Properties
             return peopleTasgs;
         }
 
-        public void Write(IMetadataWriter metadataWriter, IList<PeopleTag> people)
+        public void Write(IMetadataWriter metadataWriter, IList<PeopleTag>? people)
         {
             people = people ?? new PeopleTag[0];
 
@@ -90,14 +90,14 @@ namespace MetadataAPI.Properties
             }
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (IList<PeopleTag>)value);
+            Write(metadataWriter, (IList<PeopleTag>?)value);
         }
 
         private int ParseIndexFromKey(string key)

@@ -24,7 +24,14 @@ namespace MetadataAPI.Properties
 
         public void Write(IMetadataWriter metadataWriter, PhotoOrientation value)
         {
-            metadataWriter.SetMetadata("System.Photo.Orientation", (UInt16)value);
+            if (value == PhotoOrientation.Unspecified)
+            {
+                metadataWriter.SetMetadata("System.Photo.Orientation", null);
+            }
+            else
+            {
+                metadataWriter.SetMetadata("System.Photo.Orientation", (UInt16)value);
+            }
         }
 
         object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
@@ -32,9 +39,9 @@ namespace MetadataAPI.Properties
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (PhotoOrientation)value);
+            Write(metadataWriter, (PhotoOrientation)(value ?? PhotoOrientation.Unspecified));
         }
     }
 }

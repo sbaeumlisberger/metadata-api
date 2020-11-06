@@ -22,6 +22,7 @@ namespace MetadataAPITest.IntegrationTest.Properties
         [Theory]
         [InlineData(TestConstants.JpegWithoutMetadata)]
         [InlineData(TestConstants.JpegWithMetadata)]
+        //[InlineData(TestConstants.HeicWithoutMetadata)]
         public async Task Test_Write(string fileName)
         {
             string filePath = TestDataProvider.GetFile(fileName);

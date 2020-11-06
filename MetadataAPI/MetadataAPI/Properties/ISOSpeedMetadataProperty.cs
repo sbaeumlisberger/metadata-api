@@ -25,12 +25,12 @@ namespace MetadataAPI.Properties
             metadataWriter.SetMetadata("System.Photo.ISOSpeed", value);
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
             Write(metadataWriter, (ushort?)value);
         }

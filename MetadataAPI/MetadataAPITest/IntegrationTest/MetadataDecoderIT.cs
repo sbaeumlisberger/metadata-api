@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotNetToolkit.Foundation;
 using MetadataAPI;
 using MetadataAPI.Data;
 using MetadataAPI.Properties;
@@ -45,7 +44,7 @@ namespace MetadataAPITest.IntegrationTest
                 Assert.Equal(3, metadataReader.GetProperty(RatingMetadataProperty.Instance));
 
                 var authors = metadataReader.GetProperty(AuthorMetadataProperty.Instance);
-                Assert.Equal(1, authors.Length);
+                Assert.Single(authors);
                 Assert.Contains("Sebastian Bäumlisberger", authors);
 
                 Assert.Equal("Sebastian Bäumlisberger", metadataReader.GetProperty(CopyrightMetadataProperty.Instance));

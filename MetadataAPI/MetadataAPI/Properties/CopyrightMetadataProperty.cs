@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MetadataAPI.Properties
 {
-    public class CopyrightMetadataProperty : IMetadataProperty<string>
+    public class CopyrightMetadataProperty : IMetadataProperty<string?>
     {
         public static CopyrightMetadataProperty Instance { get; } = new CopyrightMetadataProperty();
 
@@ -15,24 +15,24 @@ namespace MetadataAPI.Properties
 
         private CopyrightMetadataProperty() { }
 
-        public string Read(IMetadataReader metadataReader)
+        public string? Read(IMetadataReader metadataReader)
         {
-            return (string)metadataReader.GetMetadata("System.Copyright") ?? string.Empty;
+            return (string?)metadataReader.GetMetadata("System.Copyright") ?? string.Empty;
         }
 
-        public void Write(IMetadataWriter metadataWriter, string value)
+        public void Write(IMetadataWriter metadataWriter, string? value)
         {
             metadataWriter.SetMetadata("System.Copyright", value);
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (string)value);
+            Write(metadataWriter, (string?)value);
         }
     }
 }

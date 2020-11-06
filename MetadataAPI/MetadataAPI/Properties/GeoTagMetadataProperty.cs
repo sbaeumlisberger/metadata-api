@@ -4,13 +4,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using DotNetToolkit.Foundation;
 using MetadataAPI.Data;
 using MetadataAPI.Helper;
 
 namespace MetadataAPI.Properties
 {
-    public class GeoTagMetadataProperty : IMetadataProperty<GeoTag>
+    public class GeoTagMetadataProperty : IMetadataProperty<GeoTag?>
     {
         public static GeoTagMetadataProperty Instance { get; } = new GeoTagMetadataProperty();
 
@@ -20,7 +19,7 @@ namespace MetadataAPI.Properties
 
         private GeoTagMetadataProperty() { }
 
-        public GeoTag Read(IMetadataReader metadataReader)
+        public GeoTag? Read(IMetadataReader metadataReader)
         {
             double? latitude = GetDecimal(metadataReader, "System.GPS.LatitudeNumerator", "System.GPS.LatitudeDenominator", "System.GPS.LatitudeRef", "S");
             double? longitude = GetDecimal(metadataReader, "System.GPS.LongitudeNumerator", "System.GPS.LongitudeDenominator", "System.GPS.LongitudeRef", "W");
@@ -42,7 +41,7 @@ namespace MetadataAPI.Properties
             return null;
         }
 
-        public void Write(IMetadataWriter metadataWriter, GeoTag geoTag)
+        public void Write(IMetadataWriter metadataWriter, GeoTag? geoTag)
         {
             if (geoTag is null)
             {
@@ -60,14 +59,14 @@ namespace MetadataAPI.Properties
             }
         }
 
-        object IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
+        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
         {
             return Read(metadataReader);
         }
 
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object value)
+        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
         {
-            Write(metadataWriter, (GeoTag)value);
+            Write(metadataWriter, (GeoTag?)value);
         }
 
         private double? GetAltitude(IMetadataReader metadataReader)

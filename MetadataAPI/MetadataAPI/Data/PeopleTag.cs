@@ -1,5 +1,4 @@
-﻿using DotNetToolkit.Foundation;
-using System;
+﻿using System;
 
 namespace MetadataAPI.Data
 {
@@ -39,12 +38,12 @@ namespace MetadataAPI.Data
             LiveCID = liveId;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Equals(obj as PeopleTag);
         }
 
-        public bool Equals(PeopleTag other)
+        public bool Equals(PeopleTag? other)
         {
             if (ReferenceEquals(other, null)) return false;
             if (ReferenceEquals(other, this)) return true;
@@ -56,7 +55,7 @@ namespace MetadataAPI.Data
 
         public override int GetHashCode()
         {
-            return HashCode.Of(Name, Rectangle, EmailDigest, LiveCID);
+            return HashCode.Combine(Name, Rectangle, EmailDigest, LiveCID);
         }
 
         public static bool operator ==(PeopleTag obj1, PeopleTag obj2)

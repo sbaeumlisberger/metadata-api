@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using DotNetToolkit.Collections;
 using WIC;
 
 namespace MetadataAPI
@@ -26,7 +26,7 @@ namespace MetadataAPI
 
         private readonly MetadataReader metadataReader;
 
-        private readonly List<(string, object)> metadata = new List<(string, object)>();
+        private readonly List<(string, object?)> metadata = new List<(string, object?)>();
 
         public MetadataEncoder(Stream stream, string fileType)
         {
@@ -38,7 +38,7 @@ namespace MetadataAPI
             metadataReader = new MetadataReader(decoder.GetFrame(0).GetMetadataQueryReader(), fileType);
         }
 
-        public object GetMetadata(string key)
+        public object? GetMetadata(string key)
         {
             return metadataReader.GetMetadata(key);
         }
@@ -48,12 +48,12 @@ namespace MetadataAPI
             return metadataReader.GetKeys();
         }
 
-        public IMetadataReader GetMetadataBlock(string key)
+        public IMetadataReader? GetMetadataBlock(string key)
         {
             return metadataReader.GetMetadataBlock(key);
         }
 
-        public void SetMetadata(string name, object value)
+        public void SetMetadata(string name, object? value)
         {
             metadata.Add((name, value));
         }
@@ -65,7 +65,7 @@ namespace MetadataAPI
                 throw new InvalidOperationException();
             }
 
-            if (metadata.IsEmpty())
+            if (!metadata.Any())
             {
                 return;
             }

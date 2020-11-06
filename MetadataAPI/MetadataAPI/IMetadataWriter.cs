@@ -8,6 +8,6 @@ namespace MetadataAPI
 {
     public interface IMetadataWriter : IMetadataReader
     {
-        void SetMetadata(string name, object value);
+        void SetMetadata(string name, object? value);
     }
 }
