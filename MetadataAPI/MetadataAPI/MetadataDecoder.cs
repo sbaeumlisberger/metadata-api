@@ -14,11 +14,11 @@ namespace MetadataAPI
 
         private readonly MetadataReader metadataReader;              
 
-        public MetadataDecoder(Stream stream, string fileType)
+        public MetadataDecoder(Stream stream, string fileType, WICDecodeOptions decodeOptions = WICDecodeOptions.WICDecodeMetadataCacheOnDemand)
         {
             FileType = fileType;
 
-            var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), WICDecodeOptions.WICDecodeMetadataCacheOnDemand);
+            var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), decodeOptions);
 
             var frame = decoder.GetFrame(0);
 
