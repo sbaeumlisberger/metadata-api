@@ -25,7 +25,7 @@ namespace MetadataAPITest.IntegrationTest
 
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataEncoder = new MetadataEncoder(stream, Path.GetExtension(filePath));
+                var metadataEncoder = new MetadataEncoder(stream);
                 metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
                 await metadataEncoder.EncodeAsync();
             }
@@ -48,7 +48,7 @@ namespace MetadataAPITest.IntegrationTest
 
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataEncoder = new MetadataEncoder(stream, Path.GetExtension(filePath));
+                var metadataEncoder = new MetadataEncoder(stream);
                 metadataEncoder.PaddingAmount = padding;
                 metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
                 await metadataEncoder.EncodeAsync();
@@ -82,7 +82,7 @@ namespace MetadataAPITest.IntegrationTest
         {
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataEncoder = new MetadataEncoder(stream, Path.GetExtension(filePath));
+                var metadataEncoder = new MetadataEncoder(stream);
                 metadataEncoder.SetProperties(propertySet);
                 await metadataEncoder.EncodeAsync().ConfigureAwait(false);
             }

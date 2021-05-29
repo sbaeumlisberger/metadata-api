@@ -34,12 +34,12 @@ namespace MetadataAPI.Data
             return HashCode.Combine(Latitude, Longitude, Altitude, AltitudeReference);
         }
 
-        public static bool operator ==(GeoTag obj1, GeoTag obj2)
+        public static bool operator ==(GeoTag? obj1, GeoTag? obj2)
         {
             return Equals(obj1, obj2);
         }
 
-        public static bool operator !=(GeoTag obj1, GeoTag obj2)
+        public static bool operator !=(GeoTag? obj1, GeoTag? obj2)
         {
             return !Equals(obj1, obj2);
         }

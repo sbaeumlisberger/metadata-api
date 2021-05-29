@@ -9,26 +9,26 @@ namespace MetadataAPI
 {
     public class MetadataReader : IMetadataReader
     {
-        public string FileType { get; }
+        public IWICBitmapCodecInfo CodecInfo { get; }
 
         private readonly IWICMetadataQueryReader wicMetadataQueryReader;
 
-        public MetadataReader(IWICMetadataQueryReader wicMetadataQueryReader, string fileType)
+        public MetadataReader(IWICMetadataQueryReader wicMetadataQueryReader, IWICBitmapCodecInfo codecInfo)
         {
-            this.wicMetadataQueryReader = wicMetadataQueryReader;
-            FileType = fileType.ToLower();
+            CodecInfo = codecInfo;
+            this.wicMetadataQueryReader = wicMetadataQueryReader;           
         }
 
         public object? GetMetadata(string key)
         {
-            return wicMetadataQueryReader.TryGetMetadataByName(key, out object value) ? value : null;
+            return wicMetadataQueryReader.TryGetMetadataByName(key, out object? value) ? value : null;
         }
 
         public IMetadataReader? GetMetadataBlock(string key)
         {
             if (GetMetadata(key) is IWICMetadataQueryReader metadataQueryReader)
             {
-                return new MetadataReader(metadataQueryReader, FileType);
+                return new MetadataReader(metadataQueryReader, CodecInfo);
             }
             return null;
         }

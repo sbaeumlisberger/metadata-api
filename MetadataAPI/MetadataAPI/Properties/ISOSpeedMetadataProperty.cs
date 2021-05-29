@@ -2,37 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class ISOSpeedMetadataProperty : IMetadataProperty<ushort?>
+    public class ISOSpeedMetadataProperty : MetadataPropertyBase<ushort?>
     {
         public static ISOSpeedMetadataProperty Instance { get; } = new ISOSpeedMetadataProperty();
 
-        public string Identifier { get; } = nameof(ISOSpeedMetadataProperty);
+        public override string Identifier { get; } = nameof(ISOSpeedMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
 
         private ISOSpeedMetadataProperty() { }
 
-        public ushort? Read(IMetadataReader metadataReader)
+        public override ushort? Read(IMetadataReader metadataReader)
         {
             return (ushort?)metadataReader.GetMetadata("System.Photo.ISOSpeed");
         }
 
-        public void Write(IMetadataWriter metadataWriter, ushort? value)
+        public override void Write(IMetadataWriter metadataWriter, ushort? value)
         {
             metadataWriter.SetMetadata("System.Photo.ISOSpeed", value);
         }
 
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (ushort?)value);
-        }
     }
 }

@@ -51,9 +51,9 @@ namespace MetadataAPITest.IntegrationTest.Properties
         {
             string filePath = TestDataProvider.GetFile(fileName);
 
-            await TestUtil.WriteMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance, null);
+            await TestUtil.WriteMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance, Array.Empty<string>());
 
-            Assert.Null(await TestUtil.ReadMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance));
+            Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance));
         }
     }
 }

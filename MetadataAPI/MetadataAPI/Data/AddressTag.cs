@@ -49,12 +49,12 @@ namespace MetadataAPI.Data
             return HashCode.Combine(Sublocation, City, ProvinceState, Country);
         }
 
-        public static bool operator ==(AddressTag obj1, AddressTag obj2)
+        public static bool operator ==(AddressTag? obj1, AddressTag? obj2)
         {
             return Equals(obj1, obj2);
         }
 
-        public static bool operator !=(AddressTag obj1, AddressTag obj2)
+        public static bool operator !=(AddressTag? obj1, AddressTag? obj2)
         {
             return !Equals(obj1, obj2);
         }

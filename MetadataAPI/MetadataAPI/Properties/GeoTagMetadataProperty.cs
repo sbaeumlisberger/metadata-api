@@ -5,21 +5,22 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using MetadataAPI.Data;
-using MetadataAPI.Helper;
+using MetadataAPI.Utils;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class GeoTagMetadataProperty : IMetadataProperty<GeoTag?>
+    public class GeoTagMetadataProperty : MetadataPropertyBase<GeoTag?>
     {
         public static GeoTagMetadataProperty Instance { get; } = new GeoTagMetadataProperty();
 
-        public string Identifier { get; } = nameof(GeoTagMetadataProperty);
+        public override string Identifier { get; } = nameof(GeoTagMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
 
         private GeoTagMetadataProperty() { }
 
-        public GeoTag? Read(IMetadataReader metadataReader)
+        public override GeoTag? Read(IMetadataReader metadataReader)
         {
             double? latitude = GetDecimal(metadataReader, "System.GPS.LatitudeNumerator", "System.GPS.LatitudeDenominator", "System.GPS.LatitudeRef", "S");
             double? longitude = GetDecimal(metadataReader, "System.GPS.LongitudeNumerator", "System.GPS.LongitudeDenominator", "System.GPS.LongitudeRef", "W");
@@ -41,7 +42,7 @@ namespace MetadataAPI.Properties
             return null;
         }
 
-        public void Write(IMetadataWriter metadataWriter, GeoTag? geoTag)
+        public override void Write(IMetadataWriter metadataWriter, GeoTag? geoTag)
         {
             if (geoTag is null)
             {
@@ -57,16 +58,6 @@ namespace MetadataAPI.Properties
                 SetLongitude(metadataWriter, geoTag);
                 SetAltitude(metadataWriter, geoTag);
             }
-        }
-
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (GeoTag?)value);
         }
 
         private double? GetAltitude(IMetadataReader metadataReader)

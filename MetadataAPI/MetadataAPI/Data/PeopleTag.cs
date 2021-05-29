@@ -58,12 +58,12 @@ namespace MetadataAPI.Data
             return HashCode.Combine(Name, Rectangle, EmailDigest, LiveCID);
         }
 
-        public static bool operator ==(PeopleTag obj1, PeopleTag obj2)
+        public static bool operator ==(PeopleTag? obj1, PeopleTag? obj2)
         {
             return Equals(obj1, obj2);
         }
 
-        public static bool operator !=(PeopleTag obj1, PeopleTag obj2)
+        public static bool operator !=(PeopleTag? obj1, PeopleTag? obj2)
         {
             return !Equals(obj1, obj2);
         }

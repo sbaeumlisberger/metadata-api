@@ -2,37 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class FocalLengthInFilmMetadataProperty : IMetadataProperty<ushort?>
+    public class FocalLengthInFilmMetadataProperty : MetadataPropertyBase<ushort?>
     {
         public static FocalLengthInFilmMetadataProperty Instance { get; } = new FocalLengthInFilmMetadataProperty();
 
-        public string Identifier { get; } = nameof(FocalLengthInFilmMetadataProperty);
+        public override string Identifier { get; } = nameof(FocalLengthInFilmMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
 
         private FocalLengthInFilmMetadataProperty() { }
 
-        public ushort? Read(IMetadataReader metadataReader)
+        public override ushort? Read(IMetadataReader metadataReader)
         {
             return (ushort?)metadataReader.GetMetadata("System.Photo.FocalLengthInFilm");
         }
 
-        public void Write(IMetadataWriter metadataWriter, ushort? value)
+        public override void Write(IMetadataWriter metadataWriter, ushort? value)
         {
             metadataWriter.SetMetadata("System.Photo.FocalLengthInFilm", value);
         }
 
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (ushort?)value);
-        }
     }
 }

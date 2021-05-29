@@ -39,7 +39,7 @@ namespace MetadataAPITest.IntegrationTest.Properties
 
             await TestUtil.WriteMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance, null);
 
-            Assert.Null(await TestUtil.ReadMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance));
+            Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance));
         }
     }
 }

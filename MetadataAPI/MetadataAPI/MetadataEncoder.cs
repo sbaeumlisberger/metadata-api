@@ -16,7 +16,7 @@ namespace MetadataAPI
         /// </summary>
         public uint PaddingAmount { get; set; } = 2048;
 
-        public string FileType { get; }
+        public IWICBitmapCodecInfo CodecInfo { get; }
 
         private readonly WICImagingFactory wic = new WICImagingFactory();
 
@@ -27,15 +27,26 @@ namespace MetadataAPI
         private readonly MetadataReader metadataReader;
 
         private readonly List<(string, object?)> metadata = new List<(string, object?)>();
-
-        public MetadataEncoder(Stream stream, string fileType)
+        
+        [Obsolete]
+        public MetadataEncoder(Stream stream, string fileType) : this(stream)
         {
-            FileType = fileType;
+        }
+
+        public MetadataEncoder(Stream stream)
+        {
+            if (stream.CanWrite is false) 
+            {
+                throw new ArgumentException("Stream must be writable", nameof(stream));
+            }
+
             this.stream = stream;
 
             decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), WICDecodeOptions.WICDecodeMetadataCacheOnDemand);
 
-            metadataReader = new MetadataReader(decoder.GetFrame(0).GetMetadataQueryReader(), fileType);
+            CodecInfo = decoder.GetDecoderInfo();
+
+            metadataReader = new MetadataReader(decoder.GetFrame(0).GetMetadataQueryReader(), CodecInfo);
         }
 
         public object? GetMetadata(string key)

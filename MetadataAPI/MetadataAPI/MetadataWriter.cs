@@ -8,19 +8,19 @@ namespace MetadataAPI
 {
     public class MetadataWriter : IMetadataWriter
     {
-        public string FileType { get; }
+        public IWICBitmapCodecInfo CodecInfo { get; }
 
         private readonly IWICMetadataQueryWriter wicMetadataQueryWriter;
 
-        public MetadataWriter(IWICMetadataQueryWriter wicMetadataQueryWriter, string fileType)
-        {           
+        public MetadataWriter(IWICMetadataQueryWriter wicMetadataQueryWriter, IWICBitmapCodecInfo codecInfo)
+        {
+            CodecInfo = codecInfo;
             this.wicMetadataQueryWriter = wicMetadataQueryWriter;
-            FileType = fileType.ToLower();
         }
 
         public object? GetMetadata(string key)
         {
-            return wicMetadataQueryWriter.TryGetMetadataByName(key, out object value) ? value : null;
+            return wicMetadataQueryWriter.TryGetMetadataByName(key, out object? value) ? value : null;
         }
 
         public IMetadataReader? GetMetadataBlock(string key)
@@ -28,7 +28,7 @@ namespace MetadataAPI
             var metadataQueryReader = (IWICMetadataQueryReader?)GetMetadata(key);
             if (metadataQueryReader != null)
             {
-                return new MetadataReader(metadataQueryReader, FileType);
+                return new MetadataReader(metadataQueryReader, CodecInfo);
             }
             return null;
         }

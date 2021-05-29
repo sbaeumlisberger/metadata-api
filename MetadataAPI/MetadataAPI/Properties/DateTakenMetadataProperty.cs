@@ -4,26 +4,23 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class DateTakenMetadataProperty : IMetadataProperty<DateTime?>
+    public class DateTakenMetadataProperty : MetadataPropertyBase<DateTime?>
     {
         public static DateTakenMetadataProperty Instance { get; } = new DateTakenMetadataProperty();
 
-        public string Identifier => nameof(DateTakenMetadataProperty);
+        public override string Identifier => nameof(DateTakenMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes => new HashSet<string>(
-            FileExtensions.Jpeg
-            .Concat(FileExtensions.Tiff)
-            .Concat(FileExtensions.Heif)
-            .Concat(FileExtensions.Png));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff, ContainerFormat.Png, ContainerFormat.Heif };
 
         private DateTakenMetadataProperty() { }
 
-        public DateTime? Read(IMetadataReader metadataReader)
+        public override DateTime? Read(IMetadataReader metadataReader)
         {
-            if (FileExtensions.Heif.Contains(metadataReader.FileType))
+            if (metadataReader.CodecInfo.GetContainerFormat() == ContainerFormat.Heif)
             {
                 if (metadataReader.GetMetadata("/ifd/{ushort=306}") is string ifd306)
                 {
@@ -37,7 +34,7 @@ namespace MetadataAPI.Properties
             }
         }
 
-        public void Write(IMetadataWriter metadataWriter, DateTime? value)
+        public override void Write(IMetadataWriter metadataWriter, DateTime? value)
         {
             //if (FileExtensions.Heif.Contains(metadataWriter.FileType))
             //{
@@ -57,14 +54,5 @@ namespace MetadataAPI.Properties
             //}
         }
 
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (DateTime?)value);
-        }
     }
 }

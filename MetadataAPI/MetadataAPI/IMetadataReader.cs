@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using WIC;
 
 namespace MetadataAPI
 {
     public interface IMetadataReader
     {
-        string FileType { get; }
+        IWICBitmapCodecInfo CodecInfo { get; }
 
         object? GetMetadata(string key);
 

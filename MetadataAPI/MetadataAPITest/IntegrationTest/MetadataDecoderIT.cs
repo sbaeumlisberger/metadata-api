@@ -20,7 +20,7 @@ namespace MetadataAPITest.IntegrationTest
 
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataReader = new MetadataDecoder(stream, Path.GetExtension(filePath));
+                var metadataReader = new MetadataDecoder(stream);
 
                 Assert.Equal("Biene auf Blume", metadataReader.GetProperty(MetadataProperties.Title));
 

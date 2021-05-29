@@ -80,7 +80,7 @@ namespace MetadataTool
         {
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataDecoder = new MetadataDecoder(stream, Path.GetExtension(filePath));
+                var metadataDecoder = new MetadataDecoder(stream);
 
                 foreach (var entry in ReadMetadata(metadataDecoder))
                 {

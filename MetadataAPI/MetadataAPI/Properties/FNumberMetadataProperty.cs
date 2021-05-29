@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MetadataAPI.Data;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class FNumberMetadataProperty : IMetadataProperty<Fraction?>
+    public class FNumberMetadataProperty : MetadataPropertyBase<Fraction?>
     {
         public static FNumberMetadataProperty Instance { get; } = new FNumberMetadataProperty();
 
-        public string Identifier { get; } = nameof(FNumberMetadataProperty);
+        public override string Identifier { get; } = nameof(FNumberMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
 
         private FNumberMetadataProperty() { }
 
-        public Fraction? Read(IMetadataReader metadataReader)
+        public override Fraction? Read(IMetadataReader metadataReader)
         {
             if (metadataReader.GetMetadata("System.Photo.FNumberNumerator") is UInt32 numerator
                 && metadataReader.GetMetadata("System.Photo.FNumberDenominator") is UInt32 denominator)
@@ -26,20 +27,11 @@ namespace MetadataAPI.Properties
             return null;
         }
 
-        public void Write(IMetadataWriter metadataWriter, Fraction? value)
+        public override void Write(IMetadataWriter metadataWriter, Fraction? value)
         {
             metadataWriter.SetMetadata("System.Photo.FNumberNumerator", (UInt32?)value?.Numerator);
             metadataWriter.SetMetadata("System.Photo.FNumberDenominator", (UInt32?)value?.Denominator);
         }
 
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (Fraction?)value);
-        }
     }
 }

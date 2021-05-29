@@ -2,37 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class FocalLengthMetadataProperty : IMetadataProperty<double?>
+    public class FocalLengthMetadataProperty : MetadataPropertyBase<double?>
     {
         public static FocalLengthMetadataProperty Instance { get; } = new FocalLengthMetadataProperty();
 
-        public string Identifier { get; } = nameof(FocalLengthMetadataProperty);
+        public override string Identifier { get; } = nameof(FocalLengthMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
 
         private FocalLengthMetadataProperty() { }
 
-        public double? Read(IMetadataReader metadataReader)
+        public override double? Read(IMetadataReader metadataReader)
         {
             return (double?)metadataReader.GetMetadata("System.Photo.FocalLength");
         }
 
-        public void Write(IMetadataWriter metadataWriter, double? value)
+        public override void Write(IMetadataWriter metadataWriter, double? value)
         {
             metadataWriter.SetMetadata("System.Photo.FocalLength", value);
-        }
-
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (double?)value);
         }
     }
 }

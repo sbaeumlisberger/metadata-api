@@ -14,7 +14,7 @@ namespace MetadataAPITest
         {
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataEncoder = new MetadataEncoder(stream, Path.GetExtension(filePath));
+                var metadataEncoder = new MetadataEncoder(stream);
                 metadataEncoder.SetProperties(propertySet);
                 await metadataEncoder.EncodeAsync().ConfigureAwait(false);
             }
@@ -24,7 +24,7 @@ namespace MetadataAPITest
         {
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataEncoder = new MetadataEncoder(stream, Path.GetExtension(filePath));
+                var metadataEncoder = new MetadataEncoder(stream);
                 metadataEncoder.SetProperty(property, value);
                 await metadataEncoder.EncodeAsync().ConfigureAwait(false);
             }
@@ -34,7 +34,7 @@ namespace MetadataAPITest
         {
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                var metadataEncoder = new MetadataEncoder(stream, Path.GetExtension(filePath));
+                var metadataEncoder = new MetadataEncoder(stream);
                 return metadataEncoder.GetProperty(property);
             }
         }

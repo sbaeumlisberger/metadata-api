@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MetadataAPI.Helper
+namespace MetadataAPI.Utils
 {
     public static class GeoUtil
     {

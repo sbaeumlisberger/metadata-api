@@ -3,27 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class AuthorMetadataProperty : IMetadataProperty<string[]?>
+    public class AuthorMetadataProperty : MetadataPropertyBase<string[]>
     {
         public static AuthorMetadataProperty Instance { get; } = new AuthorMetadataProperty();
 
-        public string Identifier => nameof(AuthorMetadataProperty);
+        public override string Identifier => nameof(AuthorMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes => new HashSet<string>() { ".jpe", ".jpeg", ".jpg", ".tiff", ".tif", ".heic" };
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff, ContainerFormat.Heif };
 
         private AuthorMetadataProperty() { }
 
-        public string[]? Read(IMetadataReader metadataReader)
+        public override string[] Read(IMetadataReader metadataReader)
         {
-            return (string[]?)metadataReader.GetMetadata("System.Author");
+            return (string[]?)metadataReader.GetMetadata("System.Author") ?? Array.Empty<string>();
         }
 
-        public void Write(IMetadataWriter metadataWriter, string[]? value)
+        public override void Write(IMetadataWriter metadataWriter, string[]? value)
         {
-            if (metadataWriter.FileType == ".heic")
+            if (metadataWriter.CodecInfo.GetContainerFormat() == ContainerFormat.Heif)
             {
                 metadataWriter.SetMetadata("/ifd/{ushort=315}", "");
                 metadataWriter.SetMetadata("/xmp/tiff:artist", "Author1");
@@ -36,14 +37,5 @@ namespace MetadataAPI.Properties
             }
         }
 
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (string[]?)value);
-        }
     }
 }

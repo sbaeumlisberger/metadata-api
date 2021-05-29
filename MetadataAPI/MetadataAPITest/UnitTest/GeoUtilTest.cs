@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using MetadataAPI.Helper;
+using MetadataAPI.Utils;
 using Xunit;
 
 namespace MetadataAPITest.UnitTest

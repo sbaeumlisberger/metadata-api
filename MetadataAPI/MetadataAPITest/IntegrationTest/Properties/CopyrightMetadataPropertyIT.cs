@@ -38,7 +38,7 @@ namespace MetadataAPITest.IntegrationTest.Properties
 
             await TestUtil.WriteMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance, null);
 
-            Assert.Equal(string.Empty, await TestUtil.ReadMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance));
+            Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance));
         }
     }
 }

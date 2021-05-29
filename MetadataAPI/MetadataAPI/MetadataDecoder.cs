@@ -8,23 +8,28 @@ namespace MetadataAPI
 {
     public class MetadataDecoder : IMetadataReader
     {
-        public string FileType { get; }
+        public IWICBitmapCodecInfo CodecInfo { get; }
 
         private readonly WICImagingFactory wic = new WICImagingFactory();
 
-        private readonly MetadataReader metadataReader;              
+        private readonly MetadataReader metadataReader;
 
+        [Obsolete]
         public MetadataDecoder(Stream stream, string fileType, WICDecodeOptions decodeOptions = WICDecodeOptions.WICDecodeMetadataCacheOnDemand)
-        {
-            FileType = fileType;
+            : this(stream, decodeOptions)
+        { }
 
+        public MetadataDecoder(Stream stream, WICDecodeOptions decodeOptions = WICDecodeOptions.WICDecodeMetadataCacheOnDemand)
+        {
             var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), decodeOptions);
+
+            CodecInfo = decoder.GetDecoderInfo();
 
             var frame = decoder.GetFrame(0);
 
             var metadataQueryReader = frame.GetMetadataQueryReader();
 
-            metadataReader = new MetadataReader(metadataQueryReader, fileType);
+            metadataReader = new MetadataReader(metadataQueryReader, CodecInfo);
         }
 
         public object? GetMetadata(string key)

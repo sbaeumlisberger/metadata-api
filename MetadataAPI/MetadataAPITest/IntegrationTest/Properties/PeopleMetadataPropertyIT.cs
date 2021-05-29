@@ -53,25 +53,13 @@ namespace MetadataAPITest.IntegrationTest.Properties
             Assert.Equal(people, await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
         }
 
-
-        [Theory]
-        [InlineData(TestConstants.JpegWithMetadata)]
-        public async Task Test_Write_EmptyCollection(string fileName)
-        {
-            string filePath = TestDataProvider.GetFile(fileName);
-
-            await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, new PeopleTag[0]);
-
-            Assert.Equal(new PeopleTag[0], await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
-        }
-
         [Theory]
         [InlineData(TestConstants.JpegWithMetadata)]
         public async Task Test_Remove(string fileName)
         {
             string filePath = TestDataProvider.GetFile(fileName);
 
-            await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, null);
+            await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, Array.Empty<PeopleTag>());
 
             Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
         }

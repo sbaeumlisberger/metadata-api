@@ -4,16 +4,17 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using MetadataAPI.Data;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class PeopleMetadataProperty : IMetadataProperty<IList<PeopleTag>?>
+    public class PeopleMetadataProperty : MetadataPropertyBase<IList<PeopleTag>>
     {
         public static PeopleMetadataProperty Instance { get; } = new PeopleMetadataProperty();
 
-        public string Identifier { get; } = nameof(PeopleMetadataProperty);
+        public override string Identifier { get; } = nameof(PeopleMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
 
         private const string RegionsBlockKey = "/xmp/<xmpstruct>MP:RegionInfo/<xmpbag>MPRI:Regions";
         private const string NameKey = "/MPReg:PersonDisplayName";
@@ -23,7 +24,7 @@ namespace MetadataAPI.Properties
 
         private PeopleMetadataProperty() { }
 
-        public IList<PeopleTag>? Read(IMetadataReader metadataReader)
+        public override IList<PeopleTag> Read(IMetadataReader metadataReader)
         {
             var peopleTasgs = new List<PeopleTag>();
 
@@ -31,7 +32,7 @@ namespace MetadataAPI.Properties
 
             if (regions is null)
             {
-                return null;
+                return peopleTasgs;
             }
 
             foreach (string key in regions.GetKeys().OrderBy(key => ParseIndexFromKey(key)))
@@ -62,10 +63,8 @@ namespace MetadataAPI.Properties
             return peopleTasgs;
         }
 
-        public void Write(IMetadataWriter metadataWriter, IList<PeopleTag>? people)
+        public override void Write(IMetadataWriter metadataWriter, IList<PeopleTag> people)
         {
-            people = people ?? new PeopleTag[0];
-
             int existingCount = metadataWriter.GetMetadataBlock(RegionsBlockKey)?.GetKeys().Count() ?? 0;
 
             for (int n = 0; n < Math.Max(people.Count, existingCount); n++)
@@ -88,16 +87,6 @@ namespace MetadataAPI.Properties
                     metadataWriter.SetMetadata(entryKey, null);
                 }
             }
-        }
-
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (IList<PeopleTag>?)value);
         }
 
         private int ParseIndexFromKey(string key)

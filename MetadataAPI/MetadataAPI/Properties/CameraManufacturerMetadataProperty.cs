@@ -2,37 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WIC;
 
 namespace MetadataAPI.Properties
 {
-    public class CameraManufacturerMetadataProperty : IMetadataProperty<string?>
+    public class CameraManufacturerMetadataProperty : MetadataPropertyBase<string>
     {
         public static CameraManufacturerMetadataProperty Instance { get; } = new CameraManufacturerMetadataProperty();
 
-        public string Identifier { get; } = nameof(CameraManufacturerMetadataProperty);
+        public override string Identifier { get; } = nameof(CameraManufacturerMetadataProperty);
 
-        public IReadOnlyCollection<string> SupportedFileTypes { get; } = new HashSet<string>(FileExtensions.Jpeg.Concat(FileExtensions.Tiff));
+        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
 
         private CameraManufacturerMetadataProperty() { }
 
-        public string? Read(IMetadataReader metadataReader)
+        public override string Read(IMetadataReader metadataReader)
         {
             return (string?)metadataReader.GetMetadata("System.Photo.CameraManufacturer") ?? string.Empty;
         }
 
-        public void Write(IMetadataWriter metadataWriter, string? value)
+        public override void Write(IMetadataWriter metadataWriter, string value)
         {
-            metadataWriter.SetMetadata("System.Photo.CameraManufacturer", value);
+            if (value != string.Empty)
+            {
+                metadataWriter.SetMetadata("System.Photo.CameraManufacturer", value);
+            }
+            else 
+            {
+                metadataWriter.SetMetadata("System.Photo.CameraManufacturer", null);
+            }
         }
 
-        object? IReadonlyMetadataProperty.Read(IMetadataReader metadataReader)
-        {
-            return Read(metadataReader);
-        }
-
-        void IMetadataProperty.Write(IMetadataWriter metadataWriter, object? value)
-        {
-            Write(metadataWriter, (string?)value);
-        }
     }
 }

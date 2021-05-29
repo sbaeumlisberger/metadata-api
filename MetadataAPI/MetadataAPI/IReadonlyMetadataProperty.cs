@@ -10,7 +10,7 @@ namespace MetadataAPI
     {
         string Identifier { get; }
 
-        IReadOnlyCollection<string> SupportedFileTypes { get; }
+        IReadOnlyCollection<Guid> SupportedFormats { get; }
 
         object? Read(IMetadataReader metadataReader);
     }
