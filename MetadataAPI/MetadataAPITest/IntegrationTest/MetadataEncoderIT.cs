@@ -41,7 +41,7 @@ namespace MetadataAPITest.IntegrationTest
         [InlineData(FileWithoutPadding, 4096)]
         public async Task Test_ReEncode(string fileName, uint padding)
         {
-            string filePath = TestDataProvider.GetFile(fileName);
+            string filePath = TestDataProvider.GetFile(fileName, "_" + padding.ToString());
 
             byte[] pixelsBefore = GetPixels(filePath);
             long sizeBefore = GetFileSize(filePath);

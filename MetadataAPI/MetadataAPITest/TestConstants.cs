@@ -16,5 +16,7 @@ namespace MetadataAPITest
 
         public const string TiffWithoutMetadata = "TestImage.tiff";
 
+        public const string JpegWithEmptyPeopleTags = "TestImage_withEmptyPeopleTags.jpg";
+
     }
 }

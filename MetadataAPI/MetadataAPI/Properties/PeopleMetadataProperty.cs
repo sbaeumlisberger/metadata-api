@@ -65,27 +65,21 @@ namespace MetadataAPI.Properties
 
         public override void Write(IMetadataWriter metadataWriter, IList<PeopleTag> people)
         {
-            int existingCount = metadataWriter.GetMetadataBlock(RegionsBlockKey)?.GetKeys().Count() ?? 0;
-
-            for (int n = 0; n < Math.Max(people.Count, existingCount); n++)
+            if (metadataWriter.GetMetadataBlock(RegionsBlockKey) is not null)
             {
-                string entryKey = RegionsBlockKey + "/<xmpstruct>{ulong=" + n + "}";
-
-                if (n < people.Count)
-                {
-                    string name = people[n].Name;
-                    string rect = RectToString(people[n].Rectangle);
-                    string emailDigest = people[n].EmailDigest;
-                    string liveCID = people[n].LiveCID;
-                    metadataWriter.SetMetadata(entryKey + NameKey, name);
-                    metadataWriter.SetMetadata(entryKey + RectangleKey, rect);
-                    metadataWriter.SetMetadata(entryKey + EmailDigestKey, emailDigest);
-                    metadataWriter.SetMetadata(entryKey + LiveCIDKey, liveCID);
-                }
-                else
-                {
-                    metadataWriter.SetMetadata(entryKey, null);
-                }
+                metadataWriter.SetMetadata(RegionsBlockKey, null);
+            }
+            for (int i = 0; i < people.Count; i++)
+            {
+                string entryKey = RegionsBlockKey + "/<xmpstruct>{ulong=" + i + "}";
+                string name = people[i].Name;
+                string rect = RectToString(people[i].Rectangle);
+                string emailDigest = people[i].EmailDigest;
+                string liveCID = people[i].LiveCID;
+                metadataWriter.SetMetadata(entryKey + NameKey, name);
+                metadataWriter.SetMetadata(entryKey + RectangleKey, rect);
+                metadataWriter.SetMetadata(entryKey + EmailDigestKey, emailDigest);
+                metadataWriter.SetMetadata(entryKey + LiveCIDKey, liveCID);
             }
         }
 

@@ -10,32 +10,31 @@ namespace MetadataAPITest
     {
         private const string TestWorkspaceDirectoryName = "TestWorkspace";
 
-        private static readonly string BaseDirectoryPath = AppDomain.CurrentDomain.BaseDirectory;
+        private static readonly string BaseDirectoryPath = AppDomain.CurrentDomain.BaseDirectory!;
 
         private static readonly string WorkspacePath = Path.Combine(BaseDirectoryPath, TestWorkspaceDirectoryName);
 
-        public static string GetFile(string relativeFilePath, [CallerFilePath] string callerFile = null, [CallerMemberName] string callerMember = null)
+        static TestDataProvider()
+        {
+            if (Directory.Exists(WorkspacePath))
+            {
+                Directory.Delete(WorkspacePath, true);
+            }
+        }
+
+        public static string GetFile(string relativeFilePath, string postfix = "", [CallerFilePath] string callerFile = "", [CallerMemberName] string callerMember = "")
         {
             string filePath = Path.Combine(BaseDirectoryPath, "TestData", relativeFilePath);
 
             string testDirectoryPath = Path.Combine(WorkspacePath, Path.GetFileNameWithoutExtension(callerFile), callerMember);
 
-            CreateEmptyDirectory(testDirectoryPath);
+            Directory.CreateDirectory(testDirectoryPath);
 
-            string testFilePath = Path.Combine(testDirectoryPath, relativeFilePath);
+            string testFilePath = Path.Combine(testDirectoryPath, relativeFilePath.Insert(relativeFilePath.LastIndexOf("."), postfix));
 
             File.Copy(filePath, testFilePath);
 
             return testFilePath;
-        }
-
-        private static void CreateEmptyDirectory(string path)
-        {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, true);
-            }
-            Directory.CreateDirectory(path);
         }
 
     }

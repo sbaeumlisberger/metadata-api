@@ -25,6 +25,7 @@ namespace MetadataAPITest.IntegrationTest.Properties
         [Theory]
         [InlineData(TestConstants.JpegWithoutMetadata)]
         [InlineData(TestConstants.JpegWithMetadata)]
+        [InlineData(TestConstants.JpegWithEmptyPeopleTags)]
         public async Task Test_Write(string fileName)
         {
             string filePath = TestDataProvider.GetFile(fileName);
@@ -43,7 +44,7 @@ namespace MetadataAPITest.IntegrationTest.Properties
             string filePath = TestDataProvider.GetFile(fileName);
             var people = new[] { new PeopleTag("Test 01"), new PeopleTag("Test 02"), new PeopleTag("Test 03") };
             await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
-         
+
             people = new[] { new PeopleTag("Test 02"), new PeopleTag("Test 03") };
             await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
             Assert.Equal(people, await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
