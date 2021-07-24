@@ -9,29 +9,31 @@ namespace MetadataAPI
     public static class MetadataPropertyExtension
     {
 
-        private static Dictionary<Guid, IWICBitmapCodecInfo>? codecsByFormat = null;
+        private static Dictionary<Guid, string[]>? fileExtensionsByFormat = null;
 
-        private static Dictionary<Guid, IWICBitmapCodecInfo> LoadCodecs()
+        private static string[] GetFileExtensionsByFormat(Guid format)
         {
-            var codecInfoByFormat = new Dictionary<Guid, IWICBitmapCodecInfo>();
-            var wic = new WICImagingFactory();
-            foreach (var decoderInfo in wic
-                .CreateComponentEnumerator(WICComponentType.WICDecoder, WICComponentEnumerateOptions.WICComponentEnumerateDefault)
-                .AsEnumerable()
-                .OfType<IWICBitmapDecoderInfo>())
+            if (fileExtensionsByFormat is null)
             {
-                codecInfoByFormat.Add(decoderInfo.GetContainerFormat(), decoderInfo);
+                fileExtensionsByFormat = new Dictionary<Guid, string[]>();
+                var wic = new WICImagingFactory();
+                foreach (var decoderInfo in wic
+                    .CreateComponentEnumerator(WICComponentType.WICDecoder, WICComponentEnumerateOptions.WICComponentEnumerateDefault)
+                    .AsEnumerable()
+                    .OfType<IWICBitmapDecoderInfo>())
+                {
+                    fileExtensionsByFormat.Add(decoderInfo.GetContainerFormat(), decoderInfo.GetFileExtensions());
+                }
             }
-            return codecInfoByFormat;
+            return fileExtensionsByFormat[format];
         }
 
         public static bool IsSupported(this IReadonlyMetadataProperty metadataProperty, string fileExtension)
         {
             fileExtension = fileExtension.ToLower();
-            codecsByFormat ??= LoadCodecs();
             return metadataProperty.SupportedFormats.Any(format =>
             {
-                return codecsByFormat[format].GetFileExtensions().Contains(fileExtension);
+                return GetFileExtensionsByFormat(format).Contains(fileExtension);
             });
         }
     }
