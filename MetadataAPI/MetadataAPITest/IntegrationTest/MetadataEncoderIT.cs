@@ -33,7 +33,7 @@ namespace MetadataAPITest.IntegrationTest
             }
 
             Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, MetadataProperties.Title));
-            Assert.Equal(pixelsBefore, GetPixels(filePath));
+            Assert.True(pixelsBefore.SequenceEqual(GetPixels(filePath)));
             Assert.Equal(sizeBefore, GetFileSize(filePath));
         }
 
@@ -57,7 +57,7 @@ namespace MetadataAPITest.IntegrationTest
             }
 
             Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, MetadataProperties.Title));
-            Assert.Equal(pixelsBefore, GetPixels(filePath));
+            Assert.True(pixelsBefore.SequenceEqual(GetPixels(filePath)));
             AssertUtil.GreaterThan(sizeBefore, GetFileSize(filePath));
             await AssertPaddingAsync(padding, filePath).ConfigureAwait(false);
         }
@@ -104,7 +104,7 @@ namespace MetadataAPITest.IntegrationTest
             }
 
             Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, MetadataProperties.Title));
-            Assert.Equal(pixelsBefore, GetPixels(filePath));
+            Assert.True(pixelsBefore.SequenceEqual(GetPixels(filePath)));
             await AssertPaddingAsync(padding, filePath).ConfigureAwait(false);
         }
 
