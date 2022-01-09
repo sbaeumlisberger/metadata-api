@@ -16,6 +16,12 @@ namespace MetadataAPI
         /// </summary>
         public uint PaddingAmount { get; set; } = 2048;
 
+        /// <summary>
+        /// Get or sets whether large thumbnails (greater than 256x256 pixel) are automatically
+        /// resized on re-encode if there is not enough space to add new metadata. Disabled by default.
+        /// </summary>
+        public bool AutoResizeLargeThumbnails { get; set; } = false;
+
         public IWICBitmapCodecInfo CodecInfo { get; }
 
         private readonly WICImagingFactory wic = new WICImagingFactory();
@@ -27,7 +33,7 @@ namespace MetadataAPI
         private readonly MetadataReader metadataReader;
 
         private readonly List<(string, object?)> metadata = new List<(string, object?)>();
-        
+
         [Obsolete]
         public MetadataEncoder(Stream stream, string fileType) : this(stream)
         {
@@ -35,14 +41,14 @@ namespace MetadataAPI
 
         public MetadataEncoder(Stream stream)
         {
-            if (stream.CanWrite is false) 
+            if (stream.CanWrite is false)
             {
                 throw new ArgumentException("Stream must be writable", nameof(stream));
             }
 
             this.stream = stream;
 
-            decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), WICDecodeOptions.WICDecodeMetadataCacheOnDemand);
+            decoder = wic.CreateDecoderFromStream(stream, WICDecodeOptions.WICDecodeMetadataCacheOnDemand);
 
             CodecInfo = decoder.GetDecoderInfo();
 
@@ -84,7 +90,14 @@ namespace MetadataAPI
             if (!TryEncodeInPlace())
             {
                 stream.Seek(0, SeekOrigin.Begin);
-                await ReEncodeAsync();
+                try
+                {
+                    await ReEncodeAsync();
+                }
+                catch (Exception ex) when (AutoResizeLargeThumbnails && ex.HResult == WinCodecError.TOO_MUCH_METADATA)
+                {
+                    await ReEncodeAsync(maxThumbnailSize: 256);
+                }
             }
         }
 
@@ -130,7 +143,7 @@ namespace MetadataAPI
             }
         }
 
-        private async Task ReEncodeAsync()
+        private async Task ReEncodeAsync(int maxThumbnailSize = -1)
         {
             try
             {
@@ -150,7 +163,20 @@ namespace MetadataAPI
                     newFrame.SetColorContexts(frame.GetColorContexts());
                     try
                     {
-                        newFrame.SetThumbnail(frame.GetThumbnail());
+                        var thumbnail = frame.GetThumbnail();
+                        var thumbnailSize = thumbnail.GetSize();
+
+                        if (maxThumbnailSize > 0 && (thumbnailSize.Width > maxThumbnailSize || thumbnailSize.Height > maxThumbnailSize))
+                        {
+                            var scaledThumbnailSize = ScaleSize(thumbnailSize, maxThumbnailSize);
+                            var scaledThumbnail = wic.CreateBitmapScaler();
+                            scaledThumbnail.Initialize(thumbnail, scaledThumbnailSize, WICBitmapInterpolationMode.WICBitmapInterpolationModeFant);
+                            newFrame.SetThumbnail(scaledThumbnail);
+                        }
+                        else
+                        {
+                            newFrame.SetThumbnail(thumbnail);
+                        }
                     }
                     catch (Exception exception) when (exception.HResult == WinCodecError.CODEC_NO_THUMBNAIL)
                     {
@@ -221,6 +247,18 @@ namespace MetadataAPI
             {
                 metadataWriter.SetMetadataByName("/ifd/PaddingSchema:padding", PaddingAmount);
                 metadataWriter.SetMetadataByName("/ifd/exif/PaddingSchema:padding", PaddingAmount);
+            }
+        }
+
+        private WICSize ScaleSize(WICSize size, int max)
+        {
+            if (size.Width > size.Height)
+            {
+                return new WICSize(max, (int)Math.Round(size.Height * ((float)max / size.Width)));
+            }
+            else
+            {
+                return new WICSize((int)Math.Round(size.Width * ((float)max / size.Height)), max);
             }
         }
     }
