@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using MetadataAPI;
@@ -12,13 +13,14 @@ namespace MetadataAPITest.IntegrationTest
 {
     public class MetadataEncoderIT
     {
-        private const string FileWithPadding = "TestImage_with_padding.jpg";
-        private const string FileWithoutPadding = "TestImage_without_padding.jpg";
+        private const string TestImageWithPadding = "TestImage_with_padding.jpg";
+        private const string TestImageWithoutPadding = "TestImage_without_padding.jpg";
+        private const string TestImageWithLargeThumbnail = "TestImage_LargeThumbnail.jpg";
 
         [Fact]
         public async Task Test_EncodeInPlace()
         {
-            string filePath = TestDataProvider.GetFile(FileWithPadding);
+            string filePath = TestDataProvider.GetFile(TestImageWithPadding);
 
             byte[] pixelsBefore = GetPixels(filePath);
             long sizeBefore = GetFileSize(filePath);
@@ -36,9 +38,9 @@ namespace MetadataAPITest.IntegrationTest
         }
 
         [Theory]
-        [InlineData(FileWithoutPadding, 0)]
-        [InlineData(FileWithoutPadding, 2048)]
-        [InlineData(FileWithoutPadding, 4096)]
+        [InlineData(TestImageWithoutPadding, 0)]
+        [InlineData(TestImageWithoutPadding, 2048)]
+        [InlineData(TestImageWithoutPadding, 4096)]
         public async Task Test_ReEncode(string fileName, uint padding)
         {
             string filePath = TestDataProvider.GetFile(fileName, "_" + padding.ToString());
@@ -60,10 +62,56 @@ namespace MetadataAPITest.IntegrationTest
             await AssertPaddingAsync(padding, filePath).ConfigureAwait(false);
         }
 
+        [Theory]
+        [InlineData(TestImageWithLargeThumbnail, 0)]
+        [InlineData(TestImageWithLargeThumbnail, 2048)]
+        [InlineData(TestImageWithLargeThumbnail, 4096)]
+        public async Task Test_ErrorToMuchMetadata(string fileName, uint padding)
+        {
+            string filePath = TestDataProvider.GetFile(fileName, "_" + padding.ToString());
+
+            var exception = await Assert.ThrowsAsync<COMException>(async () =>
+            {
+                using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
+                {
+                    var metadataEncoder = new MetadataEncoder(stream);
+                    metadataEncoder.PaddingAmount = padding;
+                    metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
+                    await metadataEncoder.EncodeAsync();
+                }
+            });
+
+            Assert.Equal(WinCodecError.TOO_MUCH_METADATA, exception.HResult);
+        }
+
+        [Theory]
+        [InlineData(TestImageWithLargeThumbnail, 0)]
+        [InlineData(TestImageWithLargeThumbnail, 2048)]
+        [InlineData(TestImageWithLargeThumbnail, 4096)]
+        public async Task Test_AutoResizeLargeThumbnails(string fileName, uint padding)
+        {
+            string filePath = TestDataProvider.GetFile(fileName, "_" + padding.ToString());
+
+            byte[] pixelsBefore = GetPixels(filePath);
+
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
+            {
+                var metadataEncoder = new MetadataEncoder(stream);
+                metadataEncoder.AutoResizeLargeThumbnails = true;
+                metadataEncoder.PaddingAmount = padding;
+                metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
+                await metadataEncoder.EncodeAsync();
+            }
+
+            Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, MetadataProperties.Title));
+            Assert.Equal(pixelsBefore, GetPixels(filePath));
+            await AssertPaddingAsync(padding, filePath).ConfigureAwait(false);
+        }
+
         private async Task AssertPaddingAsync(uint padding, string filePath)
         {
             long sizeBefore = GetFileSize(filePath);
-            
+
             await EncodeAsync(filePath, new MetadataPropertySet() {
                { MetadataProperties.Title, "New longer title" }
             }).ConfigureAwait(false);
@@ -72,7 +120,7 @@ namespace MetadataAPITest.IntegrationTest
             {
                 Assert.Equal(sizeBefore, GetFileSize(filePath));
             }
-            else 
+            else
             {
                 AssertUtil.GreaterThan(sizeBefore, GetFileSize(filePath));
             }

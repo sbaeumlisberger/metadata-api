@@ -27,6 +27,9 @@
     <None Update="TestData\Test.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\TestImage_LargeThumbnail.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\TestBitmap.heic">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
