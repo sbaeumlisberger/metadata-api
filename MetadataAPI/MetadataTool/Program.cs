@@ -84,7 +84,16 @@ namespace MetadataTool
 
                 foreach (var entry in ReadMetadata(metadataDecoder))
                 {
-                    var value = entry.Value is Array array ? ArrayToString(array) : entry.Value;
+                    var value = entry.Value;
+
+                    if (value is WICBlob blob)
+                    {
+                        value = ArrayToString(blob.Bytes);
+                    }
+                    if (value is Array array)
+                    {
+                        value = ArrayToString(array);
+                    }
 
                     if (ReadableNames.TryGetValue(entry.Key, out string readableName))
                     {
@@ -127,14 +136,6 @@ namespace MetadataTool
                     newFrame.SetResolution(frame.GetResolution()); // lossless decoding/encoding
                     newFrame.SetPixelFormat(frame.GetPixelFormat()); // lossless decoding/encoding
                     newFrame.SetColorContexts(frame.GetColorContexts());
-                    try
-                    {
-                        newFrame.SetThumbnail(frame.GetThumbnail());
-                    }
-                    catch (COMException exception) when (exception.HResult == WinCodecError.CODEC_NO_THUMBNAIL)
-                    {
-
-                    }
 
                     newFrame.WriteSource(frame);
 
