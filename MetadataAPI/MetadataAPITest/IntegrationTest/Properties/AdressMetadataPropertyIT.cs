@@ -62,5 +62,25 @@ namespace MetadataAPITest.IntegrationTest.Properties
             Assert.Null(address);
         }
 
+        [Theory]
+        [InlineData("TestImage_metadata.jpg")]
+        public async Task RemovePartialAddress(string fileName)
+        {
+            string filePath = TestDataProvider.GetFile(fileName);
+
+            await TestUtil.WriteMetadataPropertyAync(filePath, AddressMetadataProperty.Instance, new AddressTag()
+            {
+                Sublocation = null!,
+                City = null!,
+                ProvinceState = null!,
+                Country = "Deutschland",
+            });
+
+            await TestUtil.WriteMetadataPropertyAync(filePath, AddressMetadataProperty.Instance, null);
+
+            var address = await TestUtil.ReadMetadataPropertyAync(filePath, AddressMetadataProperty.Instance);
+
+            Assert.Null(address);
+        }
     }
 }

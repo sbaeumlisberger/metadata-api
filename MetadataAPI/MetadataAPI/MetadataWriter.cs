@@ -42,7 +42,10 @@ namespace MetadataAPI
         {
             if (value is null)
             {
-                wicMetadataQueryWriter.RemoveMetadataByName(name);
+                if (wicMetadataQueryWriter.TryGetMetadataByName(name, out _))
+                {
+                    wicMetadataQueryWriter.RemoveMetadataByName(name);
+                }
             }
             else
             {

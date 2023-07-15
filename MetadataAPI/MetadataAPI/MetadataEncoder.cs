@@ -109,18 +109,11 @@ namespace MetadataAPI
 
                 var inPlaceEncoder = wic.CreateFastMetadataEncoderFromFrameDecode(frame);
 
-                var metadataQueryWriter = inPlaceEncoder.GetMetadataQueryWriter();
+                var metadataWriter = new MetadataWriter(inPlaceEncoder.GetMetadataQueryWriter(), CodecInfo);
 
                 foreach (var (name, value) in metadata)
                 {
-                    if (value is null)
-                    {
-                        metadataQueryWriter.RemoveMetadataByName(name);
-                    }
-                    else
-                    {
-                        metadataQueryWriter.SetMetadataByName(name, value);
-                    }
+                    metadataWriter.SetMetadata(name, value);              
                 }
 
                 inPlaceEncoder.Commit();
@@ -192,22 +185,15 @@ namespace MetadataAPI
 
                     metadataBlockWriter.InitializeFromBlockReader(frame.AsMetadataBlockReader());
 
-                    var metadataQueryWriter = newFrame.GetMetadataQueryWriter();
+                    var metadataWriter = new MetadataWriter(newFrame.GetMetadataQueryWriter(), CodecInfo);
 
                     foreach (var (name, value) in metadata)
                     {
-                        if (value is null)
-                        {
-                            metadataQueryWriter.RemoveMetadataByName(name);
-                        }
-                        else
-                        {
-                            metadataQueryWriter.SetMetadataByName(name, value);
-                        }
+                        metadataWriter.SetMetadata(name, value);
                     }
 
                     // Add padding to allow future in-place write operations
-                    AddPadding(metadataQueryWriter, encoder.GetContainerFormat());
+                    AddPadding(metadataWriter, encoder.GetContainerFormat());
 
                     newFrame.WriteSource(frame);
 
@@ -231,7 +217,7 @@ namespace MetadataAPI
             }
         }
 
-        private void AddPadding(IWICMetadataQueryWriter metadataWriter, Guid containerFormat)
+        private void AddPadding(MetadataWriter metadataWriter, Guid containerFormat)
         {
             if (PaddingAmount == 0)
             {
@@ -239,14 +225,14 @@ namespace MetadataAPI
             }
             if (containerFormat == ContainerFormat.Jpeg)
             {
-                metadataWriter.SetMetadataByName("/app1/ifd/PaddingSchema:Padding", PaddingAmount);
-                metadataWriter.SetMetadataByName("/app1/ifd/exif/PaddingSchema:Padding", PaddingAmount);
-                metadataWriter.SetMetadataByName("/xmp/PaddingSchema:Padding", PaddingAmount);
+                metadataWriter.SetMetadata("/app1/ifd/PaddingSchema:Padding", PaddingAmount);
+                metadataWriter.SetMetadata("/app1/ifd/exif/PaddingSchema:Padding", PaddingAmount);
+                metadataWriter.SetMetadata("/xmp/PaddingSchema:Padding", PaddingAmount);
             }
             else if (containerFormat == ContainerFormat.Tiff)
             {
-                metadataWriter.SetMetadataByName("/ifd/PaddingSchema:padding", PaddingAmount);
-                metadataWriter.SetMetadataByName("/ifd/exif/PaddingSchema:padding", PaddingAmount);
+                metadataWriter.SetMetadata("/ifd/PaddingSchema:padding", PaddingAmount);
+                metadataWriter.SetMetadata("/ifd/exif/PaddingSchema:padding", PaddingAmount);
             }
         }
 
