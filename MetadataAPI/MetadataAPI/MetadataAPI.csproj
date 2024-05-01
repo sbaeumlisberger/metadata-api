@@ -11,6 +11,7 @@
     <Authors>Sebastian Bäumlisberger</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Bitmap Metadata API for .NET using the Windows Imaging Component (WIC)</Description>
+    <RepositoryUrl>https://github.com/sbaeumlisberger/metadata-api</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
