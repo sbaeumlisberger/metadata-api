@@ -6,14 +6,10 @@ namespace MetadataAPI.Data
 {
     public struct FaceRect
     {
-        public static FaceRect Empty { get; } = new FaceRect(double.PositiveInfinity, double.PositiveInfinity, double.NegativeInfinity, double.NegativeInfinity);
-
         public double X { get; set; }
         public double Y { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-
-        public bool IsEmpty => this == Empty;
 
         public FaceRect(double x, double y, double width, double height)
         {
@@ -52,6 +48,5 @@ namespace MetadataAPI.Data
         {
             return !Equals(obj1, obj2);
         }
-
     }
 }

@@ -6,10 +6,10 @@ namespace MetadataAPI.Data
     public sealed class PeopleTag : IEquatable<PeopleTag>
     {
 
-        public string Name { get; set; } = string.Empty;
-        public FaceRect Rectangle { get; set; } = FaceRect.Empty;
-        public string EmailDigest { get; set; } = string.Empty;
-        public string LiveCID { get; set; } = string.Empty;
+        public string Name { get; set; }
+        public FaceRect? Rectangle { get; set; }
+        public string? EmailDigest { get; set; }
+        public string? LiveCID { get; set; }
 
         public PeopleTag(string name)
         {

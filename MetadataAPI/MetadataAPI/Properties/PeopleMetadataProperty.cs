@@ -73,9 +73,9 @@ namespace MetadataAPI.Properties
             {
                 string entryKey = RegionsBlockKey + "/<xmpstruct>{ulong=" + i + "}";
                 string name = people[i].Name;
-                string rect = RectToString(people[i].Rectangle);
-                string emailDigest = people[i].EmailDigest;
-                string liveCID = people[i].LiveCID;
+                string? rect = RectToString(people[i].Rectangle);
+                string? emailDigest = people[i].EmailDigest;
+                string? liveCID = people[i].LiveCID;
                 metadataWriter.SetMetadata(entryKey + NameKey, name);
                 metadataWriter.SetMetadata(entryKey + RectangleKey, rect);
                 metadataWriter.SetMetadata(entryKey + EmailDigestKey, emailDigest);
@@ -90,9 +90,9 @@ namespace MetadataAPI.Properties
             return int.Parse(indexString);
         }
 
-        private FaceRect ParseRect(string s)
+        private FaceRect? ParseRect(string s)
         {
-            if (string.IsNullOrEmpty(s)) return FaceRect.Empty;
+            if (string.IsNullOrEmpty(s)) return null;
             string[] values = s.Split(',');
             double x = double.Parse(values[0], CultureInfo.InvariantCulture);
             double y = double.Parse(values[1], CultureInfo.InvariantCulture);
@@ -101,13 +101,13 @@ namespace MetadataAPI.Properties
             return new FaceRect(x, y, width, height);
         }
 
-        private string RectToString(FaceRect rect)
+        private string? RectToString(FaceRect? rect)
         {
-            if (rect == FaceRect.Empty) return "";
-            string x = rect.X.ToString(CultureInfo.InvariantCulture);
-            string y = rect.Y.ToString(CultureInfo.InvariantCulture);
-            string width = rect.Width.ToString(CultureInfo.InvariantCulture);
-            string height = rect.Height.ToString(CultureInfo.InvariantCulture);
+            if (rect is null) return null;
+            string x = rect.Value.X.ToString(CultureInfo.InvariantCulture);
+            string y = rect.Value.Y.ToString(CultureInfo.InvariantCulture);
+            string width = rect.Value.Width.ToString(CultureInfo.InvariantCulture);
+            string height = rect.Value.Height.ToString(CultureInfo.InvariantCulture);
             return x + ", " + y + ", " + width + ", " + height;
         }
     }
