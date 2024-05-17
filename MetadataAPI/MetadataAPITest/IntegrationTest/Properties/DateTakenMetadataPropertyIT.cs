@@ -16,7 +16,10 @@ namespace MetadataAPITest.IntegrationTest.Properties
         {
             string filePath = TestDataProvider.GetFile(fileName);
 
-            Assert.Equal(new DateTime(2020, 4, 18, 16, 46, 51), await TestUtil.ReadMetadataPropertyAync(filePath, DateTakenMetadataProperty.Instance));
+            var dateTaken = await TestUtil.ReadMetadataPropertyAync(filePath, DateTakenMetadataProperty.Instance);
+
+            Assert.Equal(DateTimeKind.Local, dateTaken.Value.Kind);
+            Assert.Equal(new DateTime(2020, 4, 18, 16, 46, 51), dateTaken);
         }
 
         [Theory]
