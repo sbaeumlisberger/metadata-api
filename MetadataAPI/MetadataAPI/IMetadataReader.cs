@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Collections.Generic;
 using WIC;
 
-namespace MetadataAPI
+namespace MetadataAPI;
+
+public interface IMetadataReader
 {
-    public interface IMetadataReader
-    {
-        IWICBitmapCodecInfo CodecInfo { get; }
+    IWICBitmapCodecInfo CodecInfo { get; }
 
-        object? GetMetadata(string key);
+    object? GetMetadata(string key);
 
-        IEnumerable<string> GetKeys();
+    IEnumerable<string> GetKeys();
 
-        IMetadataReader? GetMetadataBlock(string key);
-    }
-
+    IMetadataReader? GetMetadataBlock(string key);
 }

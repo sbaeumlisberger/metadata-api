@@ -1,41 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using WIC;
 
-namespace MetadataAPI
+namespace MetadataAPI;
+
+public class MetadataReader : IMetadataReader
 {
-    public class MetadataReader : IMetadataReader
+    public IWICBitmapCodecInfo CodecInfo { get; }
+
+    private readonly IWICMetadataQueryReader wicMetadataQueryReader;
+
+    public MetadataReader(IWICMetadataQueryReader wicMetadataQueryReader, IWICBitmapCodecInfo codecInfo)
     {
-        public IWICBitmapCodecInfo CodecInfo { get; }
+        CodecInfo = codecInfo;
+        this.wicMetadataQueryReader = wicMetadataQueryReader;
+    }
 
-        private readonly IWICMetadataQueryReader wicMetadataQueryReader;
+    public object? GetMetadata(string key)
+    {
+        return wicMetadataQueryReader.TryGetMetadataByName(key, out object? value) ? value : null;
+    }
 
-        public MetadataReader(IWICMetadataQueryReader wicMetadataQueryReader, IWICBitmapCodecInfo codecInfo)
+    public IMetadataReader? GetMetadataBlock(string key)
+    {
+        if (GetMetadata(key) is IWICMetadataQueryReader metadataQueryReader)
         {
-            CodecInfo = codecInfo;
-            this.wicMetadataQueryReader = wicMetadataQueryReader;           
+            return new MetadataReader(metadataQueryReader, CodecInfo);
         }
+        return null;
+    }
 
-        public object? GetMetadata(string key)
-        {
-            return wicMetadataQueryReader.TryGetMetadataByName(key, out object? value) ? value : null;
-        }
-
-        public IMetadataReader? GetMetadataBlock(string key)
-        {
-            if (GetMetadata(key) is IWICMetadataQueryReader metadataQueryReader)
-            {
-                return new MetadataReader(metadataQueryReader, CodecInfo);
-            }
-            return null;
-        }
-
-        public IEnumerable<string> GetKeys()
-        {
-            return wicMetadataQueryReader.GetNames();
-        }
+    public IEnumerable<string> GetKeys()
+    {
+        return wicMetadataQueryReader.GetNames();
     }
 }

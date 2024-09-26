@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
-using Xunit.Sdk;
+﻿using Xunit.Sdk;
 
-namespace MetadataAPITest
+namespace MetadataAPITest;
+
+class AssertUtil
 {
-    class AssertUtil
+
+    public static void GreaterThan(long than, long actual)
     {
-
-        public static void GreaterThan(long than, long actual)
+        if (!(actual > than))
         {
-            if (!(actual > than))
-            {
-                throw new XunitException($"{actual} is not greater than {than}.");
-            }
+            throw new XunitException($"{actual} is not greater than {than}.");
         }
+    }
 
-        public static void LessThan(long than, long actual)
+    public static void LessThan(long than, long actual)
+    {
+        if (!(actual < than))
         {
-            if (!(actual < than))
-            {
-                throw new XunitException($"{actual} is not less than {than}.");
-            }
+            throw new XunitException($"{actual} is not less than {than}.");
         }
     }
 }

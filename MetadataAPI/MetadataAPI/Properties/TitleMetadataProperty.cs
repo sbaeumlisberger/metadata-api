@@ -1,37 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using WIC;
 
-namespace MetadataAPI.Properties
+namespace MetadataAPI.Properties;
+
+public class TitleMetadataProperty : MetadataPropertyBase<string>
 {
-    public class TitleMetadataProperty : MetadataPropertyBase<string>
+    public static TitleMetadataProperty Instance { get; } = new TitleMetadataProperty();
+
+    public override string Identifier { get; } = nameof(TitleMetadataProperty);
+
+    public override IReadOnlySet<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
+
+    private TitleMetadataProperty() { }
+
+    public override string Read(IMetadataReader metadataReader)
     {
-        public static TitleMetadataProperty Instance { get; } = new TitleMetadataProperty();
+        return (string?)metadataReader.GetMetadata("System.Title") ?? string.Empty;
+    }
 
-        public override string Identifier { get; } = nameof(TitleMetadataProperty);
-
-        public override IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg, ContainerFormat.Tiff };
-
-        private TitleMetadataProperty() { }
-
-        public override string Read(IMetadataReader metadataReader)
+    public override void Write(IMetadataWriter metadataWriter, string value)
+    {
+        if (value != string.Empty)
         {
-            return (string?)metadataReader.GetMetadata("System.Title") ?? string.Empty;
+            metadataWriter.SetMetadata("System.Title", value);
         }
-
-        public override void Write(IMetadataWriter metadataWriter, string value)
+        else
         {
-            if (value != string.Empty)
-            {
-                metadataWriter.SetMetadata("System.Title", value);
-            }
-            else
-            {
-                metadataWriter.SetMetadata("System.Title", null);
-            }
+            metadataWriter.SetMetadata("System.Title", null);
         }
     }
 }

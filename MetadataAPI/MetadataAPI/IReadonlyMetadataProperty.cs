@@ -1,23 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetadataAPI
+namespace MetadataAPI;
+
+public interface IReadonlyMetadataProperty
 {
-    public interface IReadonlyMetadataProperty
-    {
-        string Identifier { get; }
+    string Identifier { get; }
 
-        IReadOnlyCollection<Guid> SupportedFormats { get; }
+    IReadOnlySet<Guid> SupportedFormats { get; }
 
-        object? Read(IMetadataReader metadataReader);
-    }
+    object? Read(IMetadataReader metadataReader);
+}
 
-    public interface IReadonlyMetadataProperty<T> : IReadonlyMetadataProperty
-    {
-        new T Read(IMetadataReader metadataReader);
-    }
-
+public interface IReadonlyMetadataProperty<T> : IReadonlyMetadataProperty
+{
+    new T Read(IMetadataReader metadataReader);
 }

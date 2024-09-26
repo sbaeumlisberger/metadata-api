@@ -1,47 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Xunit;
 using MetadataAPI;
 using WIC;
+using Xunit;
 
-namespace MetadataAPITest.UnitTest
+namespace MetadataAPITest.UnitTest;
+
+public class MetadataPropertyExtensionTest
 {
-    public class MetadataPropertyExtensionTest
+    private class TestMetadataProperty : IReadonlyMetadataProperty
     {
-        private class TestMetadataProperty : IReadonlyMetadataProperty
+        public string Identifier => throw new NotImplementedException();
+
+        public IReadOnlySet<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg };
+
+        public object Read(IMetadataReader metadataReader)
         {
-            public string Identifier => throw new NotImplementedException();
-
-            public IReadOnlyCollection<Guid> SupportedFormats { get; } = new HashSet<Guid>() { ContainerFormat.Jpeg };
-
-            public object Read(IMetadataReader metadataReader)
-            {
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
-
-        [Theory]
-        [InlineData(".jpg")]
-        [InlineData(".jpe")]
-        [InlineData(".jpeg")]
-        public void Test_IsSupported_True(string fileExtension) 
-        {
-            var testMetadataProperty = new TestMetadataProperty();
-
-            Assert.True(testMetadataProperty.IsSupported(fileExtension));
-        }
-
-        [Theory]
-        [InlineData(".png")]
-        [InlineData(".gif")]
-        [InlineData(".txt")]
-        public void Test_IsSupported_False(string fileExtension)
-        {
-            var testMetadataProperty = new TestMetadataProperty();
-                        
-            Assert.False(testMetadataProperty.IsSupported(fileExtension));
-        }
-
     }
+
+    [Theory]
+    [InlineData(".jpg")]
+    [InlineData(".jpe")]
+    [InlineData(".jpeg")]
+    public void Test_IsSupported_True(string fileExtension)
+    {
+        var testMetadataProperty = new TestMetadataProperty();
+
+        Assert.True(testMetadataProperty.IsSupported(fileExtension));
+    }
+
+    [Theory]
+    [InlineData(".png")]
+    [InlineData(".gif")]
+    [InlineData(".txt")]
+    public void Test_IsSupported_False(string fileExtension)
+    {
+        var testMetadataProperty = new TestMetadataProperty();
+
+        Assert.False(testMetadataProperty.IsSupported(fileExtension));
+    }
+
 }

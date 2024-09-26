@@ -1,52 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace MetadataAPI.Data;
 
-namespace MetadataAPI.Data
+public readonly record struct FaceRect
 {
-    public struct FaceRect
+    public double X { get; }
+    public double Y { get; }
+    public double Width { get; }
+    public double Height { get; }
+
+    public FaceRect(double x, double y, double width, double height)
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Width { get; set; }
-        public double Height { get; set; }
-
-        public FaceRect(double x, double y, double width, double height)
-        {
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is FaceRect other ? Equals(other) : false;
-        }
-
-        public bool Equals(FaceRect other)
-        {
-            if (ReferenceEquals(other, null)) return false;
-            if (ReferenceEquals(other, this)) return true;
-            return X == other.X
-                && Y == other.Y
-                && Width == other.Width
-                && Height == other.Height;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(X, Y, Width, Height);
-        }
-
-        public static bool operator ==(FaceRect obj1, FaceRect obj2)
-        {
-            return Equals(obj1, obj2);
-        }
-
-        public static bool operator !=(FaceRect obj1, FaceRect obj2)
-        {
-            return !Equals(obj1, obj2);
-        }
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
     }
 }

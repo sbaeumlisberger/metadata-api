@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using WIC;
+﻿namespace MetadataAPI;
 
-namespace MetadataAPI
+public interface IMetadataWriter : IMetadataReader
 {
-    public interface IMetadataWriter : IMetadataReader
-    {
-        void SetMetadata(string name, object? value);
-    }
+    void SetMetadata(string name, object? value);
 }

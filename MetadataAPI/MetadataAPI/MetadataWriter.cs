@@ -1,56 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Collections.Generic;
 using WIC;
 
-namespace MetadataAPI
+namespace MetadataAPI;
+
+public class MetadataWriter : IMetadataWriter
 {
-    public class MetadataWriter : IMetadataWriter
+    public IWICBitmapCodecInfo CodecInfo { get; }
+
+    private readonly IWICMetadataQueryWriter wicMetadataQueryWriter;
+
+    public MetadataWriter(IWICMetadataQueryWriter wicMetadataQueryWriter, IWICBitmapCodecInfo codecInfo)
     {
-        public IWICBitmapCodecInfo CodecInfo { get; }
+        CodecInfo = codecInfo;
+        this.wicMetadataQueryWriter = wicMetadataQueryWriter;
+    }
 
-        private readonly IWICMetadataQueryWriter wicMetadataQueryWriter;
+    public object? GetMetadata(string key)
+    {
+        return wicMetadataQueryWriter.TryGetMetadataByName(key, out object? value) ? value : null;
+    }
 
-        public MetadataWriter(IWICMetadataQueryWriter wicMetadataQueryWriter, IWICBitmapCodecInfo codecInfo)
+    public IMetadataReader? GetMetadataBlock(string key)
+    {
+        var metadataQueryReader = (IWICMetadataQueryReader?)GetMetadata(key);
+        if (metadataQueryReader != null)
         {
-            CodecInfo = codecInfo;
-            this.wicMetadataQueryWriter = wicMetadataQueryWriter;
+            return new MetadataReader(metadataQueryReader, CodecInfo);
         }
+        return null;
+    }
 
-        public object? GetMetadata(string key)
-        {
-            return wicMetadataQueryWriter.TryGetMetadataByName(key, out object? value) ? value : null;
-        }
+    public IEnumerable<string> GetKeys()
+    {
+        return wicMetadataQueryWriter.GetNames();
+    }
 
-        public IMetadataReader? GetMetadataBlock(string key)
+    public void SetMetadata(string name, object? value)
+    {
+        if (value is null)
         {
-            var metadataQueryReader = (IWICMetadataQueryReader?)GetMetadata(key);
-            if (metadataQueryReader != null)
+            if (wicMetadataQueryWriter.TryGetMetadataByName(name, out _))
             {
-                return new MetadataReader(metadataQueryReader, CodecInfo);
+                wicMetadataQueryWriter.RemoveMetadataByName(name);
             }
-            return null;
         }
-
-        public IEnumerable<string> GetKeys()
+        else
         {
-            return wicMetadataQueryWriter.GetNames();
-        }
-
-        public void SetMetadata(string name, object? value)
-        {
-            if (value is null)
-            {
-                if (wicMetadataQueryWriter.TryGetMetadataByName(name, out _))
-                {
-                    wicMetadataQueryWriter.RemoveMetadataByName(name);
-                }
-            }
-            else
-            {
-                wicMetadataQueryWriter.SetMetadataByName(name, value);
-            }
+            wicMetadataQueryWriter.SetMetadataByName(name, value);
         }
     }
 }
