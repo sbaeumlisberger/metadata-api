@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MetadataAPI.Data;
 
-public sealed record class AddressTag : IEquatable<AddressTag>
+public record class AddressTag
 {
     public string Sublocation { get; init; } = string.Empty;
     public string City { get; init; } = string.Empty;

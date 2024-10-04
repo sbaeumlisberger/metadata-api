@@ -24,14 +24,12 @@ public class GeoTagMetadataProperty : MetadataPropertyBase<GeoTag?>
         if (latitude != null && longitude != null)
         {
             double? altitude = GetAltitude(metadataReader);
-            byte? altitudeReference = (byte?)metadataReader.GetMetadata("System.GPS.AltitudeRef");
 
             return new GeoTag()
             {
                 Latitude = (double)latitude,
                 Longitude = (double)longitude,
                 Altitude = altitude,
-                AltitudeReference = ((AltitudeReference?)altitudeReference) ?? AltitudeReference.Unspecified
             };
         }
 
@@ -61,7 +59,14 @@ public class GeoTagMetadataProperty : MetadataPropertyBase<GeoTag?>
         if (metadataReader.GetMetadata("System.GPS.AltitudeNumerator") is UInt32 numerator
             && metadataReader.GetMetadata("System.GPS.AltitudeDenominator") is UInt32 denominator)
         {
-            return ((double)numerator) / denominator;
+            double altitude = ((double)numerator) / denominator;
+
+            byte? altitudeReference = (byte?)metadataReader.GetMetadata("System.GPS.AltitudeRef");
+            // A value of 0 indicates the altitude is above sea level. A value of 1 indicates an altitude below sea level.
+            // see: https://learn.microsoft.com/en-us/windows/win32/wic/-wic-photoprop-system-gps-altituderef
+
+            return altitudeReference == 1 ? -altitude : altitude;
+
         }
         return null;
     }
@@ -148,18 +153,20 @@ public class GeoTagMetadataProperty : MetadataPropertyBase<GeoTag?>
 
     private void SetAltitude(IMetadataWriter metadataWriter, GeoTag geoTag)
     {
-        if (geoTag.Altitude is double altitudeDecimal)
+        if (geoTag.Altitude is double altitude)
         {
-            if (altitudeDecimal < 0)
+            byte altitudeRef = 0; // above sea level
+
+            if (altitude < 0)
             {
-                throw new ArgumentException("Altitude must be greater than or equal to 0."); // TODO ?
+                altitude = Math.Abs(altitude);
+                altitudeRef = 1; // below sea level
             }
 
-            Fraction altitude = new Fraction((long)Math.Round(altitudeDecimal * Math.Pow(10, 4)), (long)Math.Pow(10, 4));
-            byte altitudeRef = (byte)geoTag.AltitudeReference;
+            Fraction altitudeFraction = new Fraction((long)Math.Round(altitude * Math.Pow(10, 4)), (long)Math.Pow(10, 4));
 
-            metadataWriter.SetMetadata("System.GPS.AltitudeNumerator", (uint)altitude.Numerator);
-            metadataWriter.SetMetadata("System.GPS.AltitudeDenominator", (uint)altitude.Denominator);
+            metadataWriter.SetMetadata("System.GPS.AltitudeNumerator", (uint)altitudeFraction.Numerator);
+            metadataWriter.SetMetadata("System.GPS.AltitudeDenominator", (uint)altitudeFraction.Denominator);
             metadataWriter.SetMetadata("System.GPS.AltitudeRef", altitudeRef);
         }
         else
