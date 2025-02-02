@@ -10,11 +10,11 @@ public class AdressMetadataPropertyIT
 
     [Theory]
     [InlineData("TestImage_metadata.jpg")]
-    public async Task Read(string fileName)
+    public void Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        var address = await TestUtil.ReadMetadataPropertyAync(filePath, AddressMetadataProperty.Instance);
+        var address = TestUtil.ReadMetadataProperty(filePath, AddressMetadataProperty.Instance);
 
         Assert.NotNull(address);
         Assert.Equal("Liberty Island 1", address.Sublocation);
@@ -38,7 +38,7 @@ public class AdressMetadataPropertyIT
             Country = "Vereinigtes Königreich",
         });
 
-        var address = await TestUtil.ReadMetadataPropertyAync(filePath, AddressMetadataProperty.Instance);
+        var address = TestUtil.ReadMetadataProperty(filePath, AddressMetadataProperty.Instance);
 
         Assert.NotNull(address);
         Assert.Equal("Constitution Hill", address.Sublocation);
@@ -55,7 +55,7 @@ public class AdressMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, AddressMetadataProperty.Instance, null);
 
-        var address = await TestUtil.ReadMetadataPropertyAync(filePath, AddressMetadataProperty.Instance);
+        var address = TestUtil.ReadMetadataProperty(filePath, AddressMetadataProperty.Instance);
 
         Assert.Null(address);
     }
@@ -76,7 +76,7 @@ public class AdressMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, AddressMetadataProperty.Instance, null);
 
-        var address = await TestUtil.ReadMetadataPropertyAync(filePath, AddressMetadataProperty.Instance);
+        var address = TestUtil.ReadMetadataProperty(filePath, AddressMetadataProperty.Instance);
 
         Assert.Null(address);
     }

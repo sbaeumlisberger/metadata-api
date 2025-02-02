@@ -27,12 +27,12 @@ public static class TestUtil
         }
     }
 
-    public static Task<T> ReadMetadataPropertyAync<T>(string filePath, IReadonlyMetadataProperty<T> property)
+    public static T ReadMetadataProperty<T>(string filePath, IReadonlyMetadataProperty<T> property)
     {
         using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
         {
-            var metadataEncoder = new MetadataEncoder(stream);
-            return Task.FromResult(metadataEncoder.GetProperty(property));
+            var metadataEncoder = new MetadataDecoder(stream);
+            return metadataEncoder.GetProperty(property);
         }
     }
 }

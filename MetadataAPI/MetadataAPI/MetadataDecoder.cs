@@ -20,7 +20,7 @@ public class MetadataDecoder : IMetadataReader
 
     public MetadataDecoder(Stream stream, WICDecodeOptions decodeOptions = WICDecodeOptions.WICDecodeMetadataCacheOnDemand)
     {
-        var decoder = wic.CreateDecoderFromStream(stream.AsCOMStream(), decodeOptions);
+        var decoder = wic.CreateDecoderFromStream(stream, decodeOptions);
 
         CodecInfo = decoder.GetDecoderInfo();
 

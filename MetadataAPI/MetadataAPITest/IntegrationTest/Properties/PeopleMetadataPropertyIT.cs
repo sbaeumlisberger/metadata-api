@@ -10,11 +10,11 @@ public class PeopleMetadataPropertyIT
 {
     [Theory]
     [InlineData(TestConstants.JpegWithMetadata)]
-    public async Task Test_Read(string fileName)
+    public void Test_Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        var people = await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance);
+        var people = TestUtil.ReadMetadataProperty(filePath, PeopleMetadataProperty.Instance);
 
         Assert.Single(people);
         Assert.Equal("Test", people[0].Name);
@@ -32,7 +32,7 @@ public class PeopleMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
 
-        Assert.Equal(people, await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
+        Assert.Equal(people, TestUtil.ReadMetadataProperty(filePath, PeopleMetadataProperty.Instance));
     }
 
     [Theory]
@@ -45,11 +45,11 @@ public class PeopleMetadataPropertyIT
 
         people = new[] { new PeopleTag("Test 02"), new PeopleTag("Test 03") };
         await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
-        Assert.Equal(people, await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
+        Assert.Equal(people, TestUtil.ReadMetadataProperty(filePath, PeopleMetadataProperty.Instance));
 
         people = new[] { new PeopleTag("Test 03") };
         await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, people);
-        Assert.Equal(people, await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
+        Assert.Equal(people, TestUtil.ReadMetadataProperty(filePath, PeopleMetadataProperty.Instance));
     }
 
     [Theory]
@@ -60,6 +60,6 @@ public class PeopleMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance, Array.Empty<PeopleTag>());
 
-        Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, PeopleMetadataProperty.Instance));
+        Assert.Empty(TestUtil.ReadMetadataProperty(filePath, PeopleMetadataProperty.Instance));
     }
 }

@@ -80,7 +80,7 @@ public class MetadataEncoder : IMetadataWriter
             throw new InvalidOperationException();
         }
 
-        if (!metadata.Any())
+        if (metadata.Count == 0)
         {
             return;
         }
@@ -90,11 +90,11 @@ public class MetadataEncoder : IMetadataWriter
             stream.Seek(0, SeekOrigin.Begin);
             try
             {
-                await ReEncodeAsync();
+                await ReEncodeAsync().ConfigureAwait(false);
             }
             catch (Exception ex) when (AutoResizeLargeThumbnails && ex.HResult == WinCodecError.TOO_MUCH_METADATA)
             {
-                await ReEncodeAsync(maxThumbnailSize: 256);
+                await ReEncodeAsync(maxThumbnailSize: 256).ConfigureAwait(false);
             }
         }
     }
@@ -138,72 +138,72 @@ public class MetadataEncoder : IMetadataWriter
     {
         try
         {
-            using (var memoryStream = new MemoryStream())
+            using var memoryStream = new MemoryStream();
+
+            var encoder = wic.CreateEncoder(decoder.GetContainerFormat());
+
+            encoder.Initialize(memoryStream, WICBitmapEncoderCacheOption.WICBitmapEncoderNoCache);
+
+            var frame = decoder.GetFrame(0);
+
+            var newFrame = encoder.CreateNewFrame();
+            newFrame.Initialize(null);
+            newFrame.SetSize(frame.GetSize()); // lossless decoding/encoding
+            newFrame.SetResolution(frame.GetResolution()); // lossless decoding/encoding
+            newFrame.SetPixelFormat(frame.GetPixelFormat()); // lossless decoding/encoding
+            newFrame.SetColorContexts(frame.GetColorContexts());
+
+            try
             {
-                var encoder = wic.CreateEncoder(decoder.GetContainerFormat());
+                var thumbnail = frame.GetThumbnail();
+                var thumbnailSize = thumbnail.GetSize();
 
-                encoder.Initialize(memoryStream.AsCOMStream(), WICBitmapEncoderCacheOption.WICBitmapEncoderNoCache);
-
-                var frame = decoder.GetFrame(0);
-
-                var newFrame = encoder.CreateNewFrame();
-                newFrame.Initialize(null);
-                newFrame.SetSize(frame.GetSize()); // lossless decoding/encoding
-                newFrame.SetResolution(frame.GetResolution()); // lossless decoding/encoding
-                newFrame.SetPixelFormat(frame.GetPixelFormat()); // lossless decoding/encoding
-                newFrame.SetColorContexts(frame.GetColorContexts());
-                try
+                if (maxThumbnailSize > 0 && (thumbnailSize.Width > maxThumbnailSize || thumbnailSize.Height > maxThumbnailSize))
                 {
-                    var thumbnail = frame.GetThumbnail();
-                    var thumbnailSize = thumbnail.GetSize();
-
-                    if (maxThumbnailSize > 0 && (thumbnailSize.Width > maxThumbnailSize || thumbnailSize.Height > maxThumbnailSize))
-                    {
-                        var scaledThumbnailSize = ScaleSize(thumbnailSize, maxThumbnailSize);
-                        var scaledThumbnail = wic.CreateBitmapScaler();
-                        scaledThumbnail.Initialize(thumbnail, scaledThumbnailSize, WICBitmapInterpolationMode.WICBitmapInterpolationModeFant);
-                        newFrame.SetThumbnail(scaledThumbnail);
-                    }
-                    else
-                    {
-                        newFrame.SetThumbnail(thumbnail);
-                    }
+                    var scaledThumbnailSize = ScaleSize(thumbnailSize, maxThumbnailSize);
+                    var scaledThumbnail = wic.CreateBitmapScaler();
+                    scaledThumbnail.Initialize(thumbnail, scaledThumbnailSize, WICBitmapInterpolationMode.WICBitmapInterpolationModeFant);
+                    newFrame.SetThumbnail(scaledThumbnail);
                 }
-                catch (Exception exception) when (exception.HResult == WinCodecError.CODEC_NO_THUMBNAIL)
+                else
                 {
-                    // no thumbnail available
+                    newFrame.SetThumbnail(thumbnail);
                 }
-
-                var metadataBlockWriter = newFrame.AsMetadataBlockWriter();
-
-                if (metadataBlockWriter is null)
-                {
-                    throw new NotSupportedException("The file format does not support any metadata.");
-                }
-
-                metadataBlockWriter.InitializeFromBlockReader(frame.AsMetadataBlockReader());
-
-                var metadataWriter = new MetadataWriter(newFrame.GetMetadataQueryWriter(), CodecInfo);
-
-                foreach (var (name, value) in metadata)
-                {
-                    metadataWriter.SetMetadata(name, value);
-                }
-
-                // Add padding to allow future in-place write operations
-                AddPadding(metadataWriter, encoder.GetContainerFormat());
-
-                newFrame.WriteSource(frame);
-
-                newFrame.Commit();
-                encoder.Commit();
-
-                await memoryStream.FlushAsync().ConfigureAwait(false);
-                memoryStream.Position = 0;
-                stream.Position = 0;
-                stream.SetLength(0);
-                await memoryStream.CopyToAsync(stream).ConfigureAwait(false);
             }
+            catch (Exception exception) when (exception.HResult == WinCodecError.CODEC_NO_THUMBNAIL)
+            {
+                // no thumbnail available
+            }
+
+            var metadataBlockWriter = newFrame.AsMetadataBlockWriter();
+
+            if (metadataBlockWriter is null)
+            {
+                throw new NotSupportedException("The file format does not support any metadata.");
+            }
+
+            metadataBlockWriter.InitializeFromBlockReader(frame.AsMetadataBlockReader());
+
+            var metadataWriter = new MetadataWriter(newFrame.GetMetadataQueryWriter(), CodecInfo);
+
+            foreach (var (name, value) in metadata)
+            {
+                metadataWriter.SetMetadata(name, value);
+            }
+
+            // Add padding to allow future in-place write operations
+            AddPadding(metadataWriter, encoder.GetContainerFormat());
+
+            newFrame.WriteSource(frame);
+
+            newFrame.Commit();
+            encoder.Commit();
+
+            await memoryStream.FlushAsync().ConfigureAwait(false);
+            memoryStream.Position = 0;
+            stream.Position = 0;
+            stream.SetLength(0);
+            await memoryStream.CopyToAsync(stream).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex.HResult == WinCodecError.PROPERTY_NOT_SUPPORTED)
         {

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace MetadataAPITest.IntegrationTest.Properties;
 
-public class RatingMetadataPropertyIT
+public class FocalLengthMetadataPropertyIT
 {
 
     [Theory]
@@ -13,7 +13,7 @@ public class RatingMetadataPropertyIT
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        Assert.Equal(3, TestUtil.ReadMetadataProperty(filePath, RatingMetadataProperty.Instance));
+        Assert.Equal(55, TestUtil.ReadMetadataProperty(filePath, FocalLengthMetadataProperty.Instance));
     }
 
     [Theory]
@@ -23,9 +23,9 @@ public class RatingMetadataPropertyIT
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        await TestUtil.WriteMetadataPropertyAync(filePath, RatingMetadataProperty.Instance, 4);
+        await TestUtil.WriteMetadataPropertyAync(filePath, FocalLengthMetadataProperty.Instance, 90);
 
-        Assert.Equal(4, TestUtil.ReadMetadataProperty(filePath, RatingMetadataProperty.Instance));
+        Assert.Equal(90, TestUtil.ReadMetadataProperty(filePath, FocalLengthMetadataProperty.Instance));
     }
 
 }

@@ -11,11 +11,11 @@ public class GeoTagMetadataPropertyIT
 
     [Theory]
     [InlineData("TestImage_metadata.jpg")]
-    public async Task Read(string fileName)
+    public void Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        var geoTag = await TestUtil.ReadMetadataPropertyAync(filePath, GeoTagMetadataProperty.Instance);
+        var geoTag = TestUtil.ReadMetadataProperty(filePath, GeoTagMetadataProperty.Instance);
 
         Assert.NotNull(geoTag);
         Assert.Equal(40.6899245, geoTag.Latitude, 6);
@@ -39,7 +39,7 @@ public class GeoTagMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, GeoTagMetadataProperty.Instance, geoTag);
 
-        var readGeoTag = await TestUtil.ReadMetadataPropertyAync(filePath, GeoTagMetadataProperty.Instance);
+        var readGeoTag = TestUtil.ReadMetadataProperty(filePath, GeoTagMetadataProperty.Instance);
 
         Assert.NotNull(readGeoTag);
         Assert.Equal(geoTag.Latitude, readGeoTag.Latitude, 6);
@@ -63,7 +63,7 @@ public class GeoTagMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, GeoTagMetadataProperty.Instance, geoTag);
 
-        var readGeoTag = await TestUtil.ReadMetadataPropertyAync(filePath, GeoTagMetadataProperty.Instance);
+        var readGeoTag = TestUtil.ReadMetadataProperty(filePath, GeoTagMetadataProperty.Instance);
 
         Assert.NotNull(readGeoTag);
         Assert.Equal(geoTag.Latitude, readGeoTag.Latitude, 6);
@@ -88,7 +88,7 @@ public class GeoTagMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, GeoTagMetadataProperty.Instance, geoTag);
 
-        var readGeoTag = await TestUtil.ReadMetadataPropertyAync(filePath, GeoTagMetadataProperty.Instance);
+        var readGeoTag = TestUtil.ReadMetadataProperty(filePath, GeoTagMetadataProperty.Instance);
 
         Assert.NotNull(readGeoTag);
         Assert.Equal(geoTag.Latitude, readGeoTag.Latitude, 6);

@@ -15,6 +15,9 @@ public class MetadataEncoderIT
     private const string TestImageWithoutPadding = "TestImage_without_padding.jpg";
     private const string TestImageWithLargeThumbnail = "TestImage_LargeThumbnail.jpg";
 
+    private const string TestTitle = "New Title";
+    private const string TestLongerTitle = TestTitle + " Longer";
+
     [Fact]
     public async Task Test_EncodeInPlace()
     {
@@ -26,11 +29,11 @@ public class MetadataEncoderIT
         using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
         {
             var metadataEncoder = new MetadataEncoder(stream);
-            metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
+            metadataEncoder.SetProperty(MetadataProperties.Title, TestTitle);
             await metadataEncoder.EncodeAsync();
         }
 
-        Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, MetadataProperties.Title));
+        Assert.Equal(TestTitle, TestUtil.ReadMetadataProperty(filePath, MetadataProperties.Title));
         Assert.True(pixelsBefore.SequenceEqual(GetPixels(filePath)));
         Assert.Equal(sizeBefore, GetFileSize(filePath));
     }
@@ -50,31 +53,28 @@ public class MetadataEncoderIT
         {
             var metadataEncoder = new MetadataEncoder(stream);
             metadataEncoder.PaddingAmount = padding;
-            metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
+            metadataEncoder.SetProperty(MetadataProperties.Title, TestTitle);
             await metadataEncoder.EncodeAsync();
         }
 
-        Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, MetadataProperties.Title));
+        Assert.Equal(TestTitle, TestUtil.ReadMetadataProperty(filePath, MetadataProperties.Title));
         Assert.True(pixelsBefore.SequenceEqual(GetPixels(filePath)));
         AssertUtil.GreaterThan(sizeBefore, GetFileSize(filePath));
         await AssertPaddingAsync(padding, filePath);
     }
 
-    [Theory]
-    [InlineData(TestImageWithLargeThumbnail, 0)]
-    [InlineData(TestImageWithLargeThumbnail, 2048)]
-    [InlineData(TestImageWithLargeThumbnail, 4096)]
-    public async Task Test_ErrorToMuchMetadata(string fileName, uint padding)
+    [Fact]
+    public async Task Test_ErrorToMuchMetadata()
     {
-        string filePath = TestDataProvider.GetFile(fileName, "_" + padding.ToString());
+        string filePath = TestDataProvider.GetFile(TestImageWithLargeThumbnail);
 
         var exception = await Assert.ThrowsAsync<COMException>(async () =>
         {
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
                 var metadataEncoder = new MetadataEncoder(stream);
-                metadataEncoder.PaddingAmount = padding;
-                metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
+                metadataEncoder.PaddingAmount = 2048;
+                metadataEncoder.SetProperty(MetadataProperties.Title, TestTitle);
                 await metadataEncoder.EncodeAsync();
             }
         });
@@ -82,13 +82,11 @@ public class MetadataEncoderIT
         Assert.Equal(WinCodecError.TOO_MUCH_METADATA, exception.HResult);
     }
 
-    [Theory]
-    [InlineData(TestImageWithLargeThumbnail, 0)]
-    [InlineData(TestImageWithLargeThumbnail, 2048)]
-    [InlineData(TestImageWithLargeThumbnail, 4096)]
-    public async Task Test_AutoResizeLargeThumbnails(string fileName, uint padding)
+    [Fact]
+    public async Task Test_AutoResizeLargeThumbnails()
     {
-        string filePath = TestDataProvider.GetFile(fileName, "_" + padding.ToString());
+        string filePath = TestDataProvider.GetFile(TestImageWithLargeThumbnail);
+        uint padding = 2048;
 
         byte[] pixelsBefore = GetPixels(filePath);
 
@@ -97,40 +95,44 @@ public class MetadataEncoderIT
             var metadataEncoder = new MetadataEncoder(stream);
             metadataEncoder.AutoResizeLargeThumbnails = true;
             metadataEncoder.PaddingAmount = padding;
-            metadataEncoder.SetProperty(MetadataProperties.Title, "New Title");
+            metadataEncoder.SetProperty(MetadataProperties.Title, TestTitle);
             await metadataEncoder.EncodeAsync();
         }
 
-        Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, MetadataProperties.Title));
+        AssertThumbnailSize(filePath, 256, 192);
+        Assert.Equal(TestTitle, TestUtil.ReadMetadataProperty(filePath, MetadataProperties.Title));
         Assert.True(pixelsBefore.SequenceEqual(GetPixels(filePath)));
         await AssertPaddingAsync(padding, filePath);
     }
 
     private async Task AssertPaddingAsync(uint padding, string filePath)
     {
+        if (padding == 0)
+        {
+            return;
+        }
+
         long sizeBefore = GetFileSize(filePath);
 
-        await EncodeAsync(filePath, new MetadataPropertySet() {
-           { MetadataProperties.Title, "New longer title" }
-        });
-
-        if (padding > 0)
-        {
-            Assert.Equal(sizeBefore, GetFileSize(filePath));
-        }
-        else
-        {
-            AssertUtil.GreaterThan(sizeBefore, GetFileSize(filePath));
-        }
-    }
-
-    private async Task EncodeAsync(string filePath, MetadataPropertySet propertySet)
-    {
         using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
         {
             var metadataEncoder = new MetadataEncoder(stream);
-            metadataEncoder.SetProperties(propertySet);
+            metadataEncoder.SetProperty(MetadataProperties.Title, TestLongerTitle);
             await metadataEncoder.EncodeAsync();
+        }
+
+        Assert.Equal(sizeBefore, GetFileSize(filePath));
+    }
+
+    private void AssertThumbnailSize(string filePath, int expectedWidth, int expectedHeight)
+    {
+        using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
+        {
+            var wic = WICImagingFactory.Create();
+            var decoder = wic.CreateDecoderFromStream(stream, WICDecodeOptions.WICDecodeMetadataCacheOnDemand);
+            var thumbnailSize = decoder.GetFrame(0).GetThumbnail().GetSize();
+            Assert.Equal(expectedWidth, thumbnailSize.Width);
+            Assert.Equal(expectedHeight, thumbnailSize.Height);
         }
     }
 

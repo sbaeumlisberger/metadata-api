@@ -8,11 +8,11 @@ public class AuthorMetadataPropertyIT
 {
     [Theory]
     [InlineData(TestConstants.JpegWithMetadata)]
-    public async Task Test_Read(string fileName)
+    public void Test_Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        Assert.Equal(["Test Author"], await TestUtil.ReadMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance));
+        Assert.Equal(["Test Author"], TestUtil.ReadMetadataProperty(filePath, AuthorMetadataProperty.Instance));
     }
 
     [Theory]
@@ -24,7 +24,7 @@ public class AuthorMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance, ["Author 01", "Author 02"]);
 
-        Assert.Equal(["Author 01", "Author 02"], await TestUtil.ReadMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance));
+        Assert.Equal(["Author 01", "Author 02"], TestUtil.ReadMetadataProperty(filePath, AuthorMetadataProperty.Instance));
     }
 
 
@@ -36,6 +36,6 @@ public class AuthorMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance, []);
 
-        Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, AuthorMetadataProperty.Instance));
+        Assert.Empty(TestUtil.ReadMetadataProperty(filePath, AuthorMetadataProperty.Instance));
     }
 }

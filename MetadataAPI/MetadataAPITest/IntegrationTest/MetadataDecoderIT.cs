@@ -12,44 +12,45 @@ public class MetadataDecoderIT
     [Fact]
     public void Test_ReadMetadata()
     {
-        string filePath = TestDataProvider.GetFile("Test.jpg");
+        string filePath = TestDataProvider.GetFile("TestImage_metadata.jpg");
 
-        using (var stream = File.Open(filePath, FileMode.Open, FileAccess.ReadWrite))
+        using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
         {
             var metadataReader = new MetadataDecoder(stream);
 
-            Assert.Equal("Biene auf Blume", metadataReader.GetProperty(MetadataProperties.Title));
+            Assert.Equal("Test Title", metadataReader.GetProperty(MetadataProperties.Title));
 
             var address = metadataReader.GetProperty(MetadataProperties.Address);
             Assert.NotNull(address);
-            Assert.Equal("Pfitznerweg 41", address.Sublocation);
-            Assert.Equal("74523 Schwäbisch Hall", address.City);
-            Assert.Equal("BW", address.ProvinceState);
-            Assert.Equal("Deutschland", address.Country);
+            Assert.Equal("Liberty Island 1", address.Sublocation);
+            Assert.Equal("10004 New York", address.City);
+            Assert.Equal("New York", address.ProvinceState);
+            Assert.Equal("Vereinigte Staaten von Amerika", address.Country);
 
             var geoTag = metadataReader.GetProperty(GeoTagMetadataProperty.Instance);
             Assert.NotNull(geoTag);
-            Assert.Equal(49.0992, geoTag.Latitude, 4);
-            Assert.Equal(9.7325, geoTag.Longitude, 4);
+            Assert.Equal(40.6899, geoTag.Latitude, 4);
+            Assert.Equal(-74.0456, geoTag.Longitude, 4);
 
             var people = metadataReader.GetProperty(PeopleMetadataProperty.Instance);
             Assert.Single(people);
-            Assert.Contains(people, peopleTag => peopleTag.Name == "Die Biene");
+            Assert.Contains(people, peopleTag => peopleTag.Name == "Test");
 
             var keywords = metadataReader.GetProperty(KeywordsMetadataProperty.Instance);
-            Assert.Equal(2, keywords.Length);
-            Assert.Contains("Natur/Tiere/Gliederfüßer/Insekten/Bienen", keywords);
-            Assert.Contains("Natur/Pflanzen/Blumen", keywords);
+            Assert.Equal(3, keywords.Length);
+            Assert.Contains("Test/Test 01", keywords);
+            Assert.Contains("Test/Test 02", keywords);
+            Assert.Contains("Test/Test 03", keywords);
 
             Assert.Equal(3, metadataReader.GetProperty(RatingMetadataProperty.Instance));
 
             var authors = metadataReader.GetProperty(AuthorMetadataProperty.Instance);
             Assert.Single(authors);
-            Assert.Contains("Sebastian Bäumlisberger", authors);
+            Assert.Contains("Test Author", authors);
 
-            Assert.Equal("Sebastian Bäumlisberger", metadataReader.GetProperty(CopyrightMetadataProperty.Instance));
+            Assert.Equal("Test Copyright", metadataReader.GetProperty(CopyrightMetadataProperty.Instance));
 
-            Assert.Equal(new DateTime(2013, 6, 30, 15, 51, 13), metadataReader.GetProperty(DateTakenMetadataProperty.Instance));
+            Assert.Equal(new DateTime(2020, 4, 18, 16, 46, 51), metadataReader.GetProperty(DateTakenMetadataProperty.Instance));
 
             //Assert.Equal((UInt32)4912, metadataReader.GetMetadata(HorizontalSize));
             //Assert.Equal((UInt32)3264, metadataReader.GetMetadata(VerticalSize));
@@ -61,9 +62,9 @@ public class MetadataDecoderIT
             Assert.Equal((UInt16)800, metadataReader.GetProperty(ISOSpeedMetadataProperty.Instance));
             Assert.Equal((double)55, metadataReader.GetProperty(FocalLengthMetadataProperty.Instance));
             Assert.Equal((UInt16)82, metadataReader.GetProperty(FocalLengthInFilmMetadataProperty.Instance));
-
             Assert.Equal(new Fraction(1, 1000), metadataReader.GetProperty(ExposureTimeMetadataProperty.Instance)!.Value.GetReduced());
-            Assert.Equal(PhotoOrientation.Normal, metadataReader.GetProperty(OrientationMetadataProperty.Instance));
+            
+            Assert.Equal(PhotoOrientation.Unspecified, metadataReader.GetProperty(OrientationMetadataProperty.Instance));
         }
     }
 }

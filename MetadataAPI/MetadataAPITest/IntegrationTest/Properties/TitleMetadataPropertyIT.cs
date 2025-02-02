@@ -9,11 +9,11 @@ public class TitleMetadataPropertyIT
 
     [Theory]
     [InlineData("TestImage_metadata.jpg")]
-    public async Task Read(string fileName)
+    public void Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        Assert.Equal("Test Title", await TestUtil.ReadMetadataPropertyAync(filePath, TitleMetadataProperty.Instance));
+        Assert.Equal("Test Title", TestUtil.ReadMetadataProperty(filePath, TitleMetadataProperty.Instance));
     }
 
     [Theory]
@@ -25,7 +25,7 @@ public class TitleMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, TitleMetadataProperty.Instance, "New Title");
 
-        Assert.Equal("New Title", await TestUtil.ReadMetadataPropertyAync(filePath, TitleMetadataProperty.Instance));
+        Assert.Equal("New Title", TestUtil.ReadMetadataProperty(filePath, TitleMetadataProperty.Instance));
     }
 
 }

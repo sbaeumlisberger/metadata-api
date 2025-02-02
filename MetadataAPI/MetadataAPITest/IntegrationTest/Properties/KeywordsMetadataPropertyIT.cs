@@ -9,11 +9,11 @@ public class KeywordsMetadataPropertyIT
 {
     [Theory]
     [InlineData(TestConstants.JpegWithMetadata)]
-    public async Task Test_Read(string fileName)
+    public void Test_Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        Assert.Equal(new[] { "Test/Test 01", "Test/Test 02", "Test/Test 03" }, await TestUtil.ReadMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance));
+        Assert.Equal(new[] { "Test/Test 01", "Test/Test 02", "Test/Test 03" }, TestUtil.ReadMetadataProperty(filePath, KeywordsMetadataProperty.Instance));
     }
 
     [Theory]
@@ -27,7 +27,7 @@ public class KeywordsMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance, keywords);
 
-        Assert.Equal(keywords, await TestUtil.ReadMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance));
+        Assert.Equal(keywords, TestUtil.ReadMetadataProperty(filePath, KeywordsMetadataProperty.Instance));
     }
 
     [Theory]
@@ -40,7 +40,7 @@ public class KeywordsMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance, keywords);
 
-        Assert.Equal(keywords, await TestUtil.ReadMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance));
+        Assert.Equal(keywords, TestUtil.ReadMetadataProperty(filePath, KeywordsMetadataProperty.Instance));
     }
 
     [Theory]
@@ -51,6 +51,6 @@ public class KeywordsMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance, Array.Empty<string>());
 
-        Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, KeywordsMetadataProperty.Instance));
+        Assert.Empty(TestUtil.ReadMetadataProperty(filePath, KeywordsMetadataProperty.Instance));
     }
 }

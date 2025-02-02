@@ -10,11 +10,11 @@ public class DateTakenMetadataPropertyIT
     [Theory]
     [InlineData(TestConstants.JpegWithMetadata)]
     [InlineData(TestConstants.HeicWithMetadata)]
-    public async Task Test_Read(string fileName)
+    public void Test_Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        var dateTaken = await TestUtil.ReadMetadataPropertyAync(filePath, DateTakenMetadataProperty.Instance);
+        var dateTaken = TestUtil.ReadMetadataProperty(filePath, DateTakenMetadataProperty.Instance);
 
         Assert.Equal(DateTimeKind.Local, dateTaken.Value.Kind);
         Assert.Equal(new DateTime(2020, 4, 18, 16, 46, 51), dateTaken);
@@ -32,7 +32,7 @@ public class DateTakenMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, DateTakenMetadataProperty.Instance, dateTaken);
 
-        Assert.Equal(dateTaken, await TestUtil.ReadMetadataPropertyAync(filePath, DateTakenMetadataProperty.Instance));
+        Assert.Equal(dateTaken, TestUtil.ReadMetadataProperty(filePath, DateTakenMetadataProperty.Instance));
     }
 
 
@@ -44,6 +44,6 @@ public class DateTakenMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, DateTakenMetadataProperty.Instance, null);
 
-        Assert.Null(await TestUtil.ReadMetadataPropertyAync(filePath, DateTakenMetadataProperty.Instance));
+        Assert.Null(TestUtil.ReadMetadataProperty(filePath, DateTakenMetadataProperty.Instance));
     }
 }

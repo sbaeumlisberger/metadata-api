@@ -8,11 +8,11 @@ public class CopyrightMetadataPropertyIT
 {
     [Theory]
     [InlineData(TestConstants.JpegWithMetadata)]
-    public async Task Test_Read(string fileName)
+    public void Test_Read(string fileName)
     {
         string filePath = TestDataProvider.GetFile(fileName);
 
-        Assert.Equal("Test Copyright", await TestUtil.ReadMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance));
+        Assert.Equal("Test Copyright", TestUtil.ReadMetadataProperty(filePath, CopyrightMetadataProperty.Instance));
     }
 
     [Theory]
@@ -24,7 +24,7 @@ public class CopyrightMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance, "New Copyright");
 
-        Assert.Equal("New Copyright", await TestUtil.ReadMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance));
+        Assert.Equal("New Copyright", TestUtil.ReadMetadataProperty(filePath, CopyrightMetadataProperty.Instance));
     }
 
     [Theory]
@@ -35,6 +35,6 @@ public class CopyrightMetadataPropertyIT
 
         await TestUtil.WriteMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance, "");
 
-        Assert.Empty(await TestUtil.ReadMetadataPropertyAync(filePath, CopyrightMetadataProperty.Instance));
+        Assert.Empty(TestUtil.ReadMetadataProperty(filePath, CopyrightMetadataProperty.Instance));
     }
 }
