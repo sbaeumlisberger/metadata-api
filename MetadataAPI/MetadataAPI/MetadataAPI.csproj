@@ -3,8 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0-windows</TargetFrameworks>
     <Nullable>enable</Nullable>
-    <Version>2.0.0</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>2.0.1</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Authors>sbaeumlisberger</Authors>
@@ -15,7 +14,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="WIC.DotNet" Version="2.0.0" />
+    <PackageReference Include="WIC.DotNet" Version="2.0.1" />
   </ItemGroup>
 
 </Project>
